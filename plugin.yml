@@ -1,0 +1,21 @@
+name: DynamicResourcepacks
+main: de.rene_zeidler.dynamicresourcepacks.DynamicResourcepacks
+version: 0.0.1
+
+commands:
+   dynamicresourcepacks:
+      description: Main DynamicResourcepacks command.
+      aliases: [dynamicresources, dynres]
+      usage: /<command>
+      permission: brohoof.brohoof
+      permission-message: You don't have <permission>
+      
+      
+permissions:
+    dynamicresourcepacks.*:
+        description: Gives access to all DynamicResourcepacks commands
+        children:
+            dynamicresourcepacks.something: true
+    dynamicresourcepacks.something:
+        description: something
+        default: op
