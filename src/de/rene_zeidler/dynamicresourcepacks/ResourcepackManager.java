@@ -5,25 +5,23 @@ import java.util.HashMap;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.entity.Player;
 
+/**
+ * Stores the URL of the resourcepack for players and sends it to the player.
+ * 
+ * @author René Zeidler
+ * @version 0.0.1
+ */
 public class ResourcepackManager {
 	private DynamicResourcepacks plugin;
 	private Configuration config;
 	
 	private HashMap<Player, String> currentPacks;
 	
-	private static ResourcepackManager instance;
-	
 	public ResourcepackManager(DynamicResourcepacks plugin) {
-		ResourcepackManager.instance = this;
-		
 		this.plugin = plugin;
 		this.config = this.plugin.getConfig();
 		
 		this.currentPacks = new HashMap<Player, String>();
-	}
-	
-	public static ResourcepackManager getInstance() {
-		return ResourcepackManager.instance;
 	}
 	
 	public String getEmptyPackURL() {

@@ -1,17 +1,17 @@
 package de.rene_zeidler.dynamicresourcepacks;
 
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class DynamicResourcepacks extends JavaPlugin {
-	ResourcepackManager packManager;
+	private ResourcepackManager packManager;
+	private PlayerManager playerManager;
 	
 	@Override
 	public void onLoad() {
 		super.onLoad();
 		
 		this.packManager = new ResourcepackManager(this);
+		this.playerManager = new PlayerManager(this, this.packManager);
 	}
 	
 	@Override
@@ -24,9 +24,7 @@ public class DynamicResourcepacks extends JavaPlugin {
 		this.saveConfig();
 	}
 	
-	@Override
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-		
-		return true;
-    }
+	public PlayerManager getPlayerManager() {
+		return this.playerManager;
+	}
 }
