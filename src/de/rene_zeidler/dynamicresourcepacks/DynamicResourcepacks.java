@@ -18,6 +18,8 @@ public class DynamicResourcepacks extends JavaPlugin {
 		
 		this.packManager = new ResourcepackManager(this);
 		this.playerManager = new PlayerManager(this, this.packManager);
+		
+		this.getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
 	}
  
 	@Override

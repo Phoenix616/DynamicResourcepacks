@@ -1,15 +1,10 @@
 package de.rene_zeidler.dynamicresourcepacks;
 
-import java.util.List;
-
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.Configuration;
-import org.bukkit.entity.Player;
-import org.bukkit.metadata.FixedMetadataValue;
-import org.bukkit.metadata.MetadataValue;
 
 /**
  * Handles all actions that alter the resourcepack of players, including checks such as permissions or locked packs.
