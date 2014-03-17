@@ -94,7 +94,7 @@ public class Resourcepack {
 		return "dynamicresourcepacks.usepack" + (this.generalPermission == Permission.SPECIFIC ? this.name : "");
 	}
 	
-	public String getSelfPermissionNode() {
+	public String getUseSelfPermissionNode() {
 		if(this.useSelfPermission == Permission.NONE) return null;
 		return "dynamicresourcepacks.usepack" + (this.useSelfPermission == Permission.SPECIFIC ? this.name : "");
 	}
@@ -104,7 +104,7 @@ public class Resourcepack {
 		return sender.hasPermission("dynamicresourcepacks.usepack" + (this.generalPermission == Permission.SPECIFIC ? this.name : ""));
 	}
 	
-	public boolean checkSelfPermission(Permissible sender) {
+	public boolean checkUseSelfPermission(Permissible sender) {
 		if(this.useSelfPermission == Permission.NONE) return true;
 		return sender.hasPermission("dynamicresourcepacks.usepack" + (this.generalPermission == Permission.SPECIFIC ? this.name : ""));
 	}

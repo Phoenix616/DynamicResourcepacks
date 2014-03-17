@@ -2,10 +2,15 @@ package de.rene_zeidler.dynamicresourcepacks;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map.Entry;
 
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.Configuration;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
+import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.metadata.MetadataValue;
 
 import de.rene_zeidler.dynamicresourcepacks.Resourcepack.Permission;
 
@@ -279,6 +284,100 @@ public class ResourcepackManager {
 	public void clearSelectedPacks() {
 		for(Player p : this.currentPacks.keySet())
 			this.clearResourcepack(p);
+	}
+	
+	/**
+	 * Saves all resourcepack settings in the config.
+	 * (The config itself is not automatically saved to the disk!)
+	 */
+	public void saveConfig() {
+		ConfigurationSection section = this.config.createSection("resourcepacks");
+		for(Resourcepack pack : this.packs.values()) {
+			if(pack == EMPTY_PACK) continue;
+			ConfigurationSection p = section.createSection(pack.getName());
+			p.set("displayName", pack.getDisplayName());
+			p.set("url", pack.getURL());
+			p.set("generalPermission", pack.getGeneralPermission().toString());
+			p.set("useSelfPermission", pack.getUseSelfPermission().toString());
+		}
+		
+		section = this.config.createSection("players");
+		for(Player player : this.currentPacks.keySet()) {
+			ConfigurationSection p = section.createSection(player.getName());
+			p.set("pack", this.currentPacks.get(player));
+			p.set("locked", this.getLocked(player));
+		}
+	}
+	
+	/**
+	 * Populates the resourcepack list and selected resourcepacks of players with
+	 * the values stored in the config. Any unsaved changes will be discarded, use
+	 * {@link #saveConfig()} to save them before.
+	 */
+	public void loadFromConfig() {
+		this.packs.clear();
+		this.packs.put(EMPTY_PACK.getName(), EMPTY_PACK);
+		
+		ConfigurationSection section = this.config.getConfigurationSection("resourcepacks");
+		if(section != null) {
+			for(String name : section.getKeys(false)) {
+				ConfigurationSection p = section.getConfigurationSection(name);
+				Resourcepack pack = new Resourcepack(
+						name,
+						p.getString("displayName"),
+						p.getString("url"),
+						Permission.valueOf(p.getString("generalPermission")),
+						Permission.valueOf(p.getString("useSelfPermission")));
+				this.packs.put(name, pack);
+			}
+		}
+		
+		section = this.config.getConfigurationSection("players");
+		if(section != null) {
+			for(String name : section.getKeys(false)) {
+				ConfigurationSection p = section.getConfigurationSection(name);
+				Player player = Bukkit.getPlayerExact(name);
+				if(player != null) {
+					this.setResourcepack(player, this.getResourcepackForName(p.getString("pack")));
+					this.setLocked(player, p.getBoolean("locked"));
+				}
+			}
+		}
+	}
+	
+	/**
+	 * Initializes the given player with the state stored in the config.
+	 * @param player The player
+	 */
+	public void loadPlayerFromConfig(Player player) {
+		if(player == null) return;
+		ConfigurationSection p = this.config.getConfigurationSection("players." + player.getName());
+		if(p != null) {
+			this.setResourcepack(player, this.getResourcepackForName(p.getString("pack")));
+			this.setLocked(player, p.getBoolean("locked"));
+		}
+	}
+	
+	/**
+	 * Sets the locked status of the player to the given value
+	 * @param player The player
+	 * @param locked The status
+	 */
+	public void setLocked(Player player, boolean locked) {
+		player.setMetadata("resourcepackLocked", new FixedMetadataValue(this.plugin, locked));
+	}
+	
+	/**
+	 * Returns the locked status of the given player
+	 * @param player The player
+	 * @return The status
+	 */
+	public boolean getLocked(Player player) {
+		List<MetadataValue> values = player.getMetadata("resourcepackLocked");
+		for (MetadataValue value : values)
+			if (value.getOwningPlugin() == this.plugin)
+				return value.asBoolean();
+		return false;
 	}
 	
 	/**

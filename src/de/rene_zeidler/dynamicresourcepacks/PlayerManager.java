@@ -70,18 +70,6 @@ public class PlayerManager implements CommandExecutor {
 			return null;
 		}
 	}
-	
-	public void setLocked(Player player, boolean locked) {
-		player.setMetadata("resourcepackLocked", new FixedMetadataValue(this.plugin, locked));
-	}
-	
-	public boolean getLocked(Player player) {
-	  List<MetadataValue> values = player.getMetadata("resourcepackLocked");  
-	  for (MetadataValue value : values)
-		  if (value.getOwningPlugin() == this.plugin)
-			  return value.asBoolean();
-	  return false;
-	}
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {

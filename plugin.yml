@@ -7,7 +7,7 @@ commands:
       description: Main DynamicResourcepacks command.
       aliases: [dynamicresources, dynres]
       usage: /<command>
-      permission: brohoof.brohoof
+      permission: dynamicresourcepacks.something
       permission-message: You don't have <permission>
       
       
