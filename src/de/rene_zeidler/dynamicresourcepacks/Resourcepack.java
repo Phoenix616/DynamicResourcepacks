@@ -101,11 +101,11 @@ public class Resourcepack {
 	
 	public boolean checkGeneralPermission(Permissible sender) {
 		if(this.generalPermission == Permission.NONE) return true;
-		return sender.hasPermission("dynamicresourcepacks.usepack" + (this.generalPermission == Permission.SPECIFIC ? this.name : ""));
+		return sender.hasPermission("dynamicresourcepacks.usepack" + (this.generalPermission == Permission.SPECIFIC ? this.name : "")) || sender.hasPermission("dynamicresourcepacks.usepack.*");
 	}
 	
 	public boolean checkUseSelfPermission(Permissible sender) {
 		if(this.useSelfPermission == Permission.NONE) return true;
-		return sender.hasPermission("dynamicresourcepacks.usepack" + (this.generalPermission == Permission.SPECIFIC ? this.name : ""));
+		return sender.hasPermission("dynamicresourcepacks.usepack" + (this.generalPermission == Permission.SPECIFIC ? this.name : "")) || sender.hasPermission("dynamicresourcepacks.usepack.*");
 	}
 }

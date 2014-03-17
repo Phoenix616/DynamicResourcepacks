@@ -1,18 +1,17 @@
 package de.rene_zeidler.dynamicresourcepacks;
 
 import org.bukkit.ChatColor;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.Configuration;
+import org.bukkit.entity.Player;
 
 /**
  * Handles all actions that alter the resourcepack of players, including checks such as permissions or locked packs.
  * 
  * @author René Zeidler
- * @version 0.0.2
+ * @version 0.0.3
  */
-public class PlayerManager implements CommandExecutor {
+public class PlayerManager {
 	private DynamicResourcepacks plugin;
 	private Configuration config;
 	private ResourcepackManager packManager;
@@ -65,10 +64,59 @@ public class PlayerManager implements CommandExecutor {
 			return null;
 		}
 	}
-
-	@Override
-	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-		// TODO Auto-generated method stub
-		return false;
+	
+	public boolean handleDynamicResourcepacksCommand(CommandSender sender, String label, String[] args) {
+		
+		return true;
+	}
+	
+	public boolean handleSetResourcepackCommand(CommandSender sender, String label, String[] args) {
+		if(args.length == 0)
+			this.handleCurrentPackInfo(sender);
+		else {
+			
+		}
+		
+		return true;
+	}
+	
+	public void handleCurrentPackInfo(CommandSender sender) {
+		if(!(sender instanceof Player)) {
+			sender.sendMessage(ChatColor.RED + "You can't have a selected resourcepack!");
+			sender.sendMessage(ChatColor.GOLD + "Use /dynamicresourcepacks view <pack>");
+			return;
+		}
+		
+		Player p = (Player)sender;
+		if(sender.hasPermission("dynamicresourcepacks.view"))
+			if(this.packManager.hasResourcepack(p)) {
+				sender.sendMessage(ChatColor.BLUE + "" + ChatColor.ITALIC + "Currently selected resourcepack:");
+				this.printPackInfo(sender, this.packManager.getResourcepack(p));
+			} else {
+				sender.sendMessage(ChatColor.RED + "You currently don't have a resourcepack selected!");
+				if(sender.hasPermission("dynamicresourcepacks.view.selectable"))
+					sender.sendMessage(ChatColor.GOLD + "Use /dynamicresourcepacks view <pack> to show the infomarion of another pack");
+				if(sender.hasPermission("dynamicresourcepacks.list.selectable"))
+					sender.sendMessage(ChatColor.GOLD + "Use /dynamicresourcepacks list to list all resourcepacks");
+			}
+		else {
+			sender.sendMessage(ChatColor.RED + "You don't have permission to do that!");
+		}
+	}
+	
+	public void printPackInfo(CommandSender sender, Resourcepack pack) {
+		sender.sendMessage(ChatColor.DARK_AQUA + "Resourcepack " + 
+		                   ChatColor.AQUA      + pack.getDisplayName() +
+		                   ChatColor.DARK_AQUA + " (id: " +
+		                   ChatColor.AQUA      + pack.getName() +
+		                   ChatColor.DARK_AQUA + ")");
+		if(sender.hasPermission("dynamicresourcepacks.view.full")) {
+			sender.sendMessage(ChatColor.DARK_AQUA + "URL: " + 
+			                   ChatColor.AQUA      + pack.getURL());
+			sender.sendMessage(ChatColor.DARK_AQUA + "General Permission: " + 
+			                   ChatColor.AQUA      + pack.getGeneralPermission().toString());
+			sender.sendMessage(ChatColor.DARK_AQUA + "Use Self Permission: " + 
+			                   ChatColor.AQUA      + pack.getUseSelfPermission().toString());
+		}
 	}
 }
