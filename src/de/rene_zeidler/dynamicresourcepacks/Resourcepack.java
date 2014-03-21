@@ -99,13 +99,13 @@ public class Resourcepack {
 		return "dynamicresourcepacks.usepack" + (this.useSelfPermission == Permission.SPECIFIC ? this.name : "");
 	}
 	
-	public boolean checkGeneralPermission(Permissible sender) {
+	public boolean checkGeneralPermission(Permissible player) {
 		if(this.generalPermission == Permission.NONE) return true;
-		return sender.hasPermission("dynamicresourcepacks.usepack" + (this.generalPermission == Permission.SPECIFIC ? this.name : "")) || sender.hasPermission("dynamicresourcepacks.usepack.*");
+		return player.hasPermission("dynamicresourcepacks.usepack" + (this.generalPermission == Permission.SPECIFIC ? this.name : "")) || player.hasPermission("dynamicresourcepacks.usepack.*");
 	}
 	
-	public boolean checkUseSelfPermission(Permissible sender) {
+	public boolean checkUseSelfPermission(Permissible player) {
 		if(this.useSelfPermission == Permission.NONE) return true;
-		return sender.hasPermission("dynamicresourcepacks.usepack" + (this.generalPermission == Permission.SPECIFIC ? this.name : "")) || sender.hasPermission("dynamicresourcepacks.usepack.*");
+		return player.hasPermission("dynamicresourcepacks.usepack" + (this.generalPermission == Permission.SPECIFIC ? this.name : "")) || player.hasPermission("dynamicresourcepacks.usepack.*");
 	}
 }
