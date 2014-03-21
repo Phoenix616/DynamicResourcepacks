@@ -5,7 +5,8 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerLoginEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 
 public class PlayerListener implements Listener, CommandExecutor {
 	private DynamicResourcepacks plugin;
@@ -17,8 +18,13 @@ public class PlayerListener implements Listener, CommandExecutor {
 	}
 	
 	@EventHandler
-	public void onLogin(PlayerLoginEvent event) {
+	public void onLogin(PlayerJoinEvent event) {
 		this.playerManager.getResourcepackManager().loadPlayerFromConfig(event.getPlayer());
+	}
+	
+	@EventHandler
+	public void onDisconnect(PlayerQuitEvent event) {
+		this.playerManager.getResourcepackManager().saveConfigForPlayer(event.getPlayer());
 	}
 	
 	@Override

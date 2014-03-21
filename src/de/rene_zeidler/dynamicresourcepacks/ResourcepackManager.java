@@ -284,13 +284,23 @@ public class ResourcepackManager {
 	public void clearSelectedPacks() {
 		for(Player p : this.currentPacks.keySet())
 			this.clearResourcepack(p);
+		
+	}
+	
+	/**
+	 * Saves all resourcepack settings and selected resourcepacks in the config.
+	 * (The config itself is not automatically saved to the disk!)
+	 */
+	public void saveConfig() {
+		this.saveConfigPacks();
+		this.saveConfigPlayers();
 	}
 	
 	/**
 	 * Saves all resourcepack settings in the config.
 	 * (The config itself is not automatically saved to the disk!)
 	 */
-	public void saveConfig() {
+	public void saveConfigPacks() {
 		ConfigurationSection section = this.config.createSection("resourcepacks");
 		for(Resourcepack pack : this.packs.values()) {
 			if(pack == EMPTY_PACK) continue;
@@ -300,13 +310,30 @@ public class ResourcepackManager {
 			p.set("generalPermission", pack.getGeneralPermission().toString());
 			p.set("useSelfPermission", pack.getUseSelfPermission().toString());
 		}
-		
-		section = this.config.createSection("players");
+	}
+	
+	/**
+	 * Saves all currently selected resourcepacks in the config.
+	 * (The config itself is not automatically saved to the disk!)
+	 */
+	public void saveConfigPlayers() {
+		ConfigurationSection section = this.config.createSection("players");
 		for(Player player : this.currentPacks.keySet()) {
 			ConfigurationSection p = section.createSection(player.getName());
 			p.set("pack", this.currentPacks.get(player));
 			p.set("locked", this.getLocked(player));
 		}
+	}
+	
+	/**
+	 * Saves all the selected resourcepacks of the given player in the config.
+	 * (The config itself is not automatically saved to the disk!)
+	 */
+	public void saveConfigForPlayer(Player player) {
+		ConfigurationSection section = this.config.createSection("players");
+		ConfigurationSection p = section.createSection(player.getName());
+		p.set("pack", this.currentPacks.get(player));
+		p.set("locked", this.getLocked(player));
 	}
 	
 	/**

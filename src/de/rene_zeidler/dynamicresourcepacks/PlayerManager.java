@@ -2,7 +2,6 @@ package de.rene_zeidler.dynamicresourcepacks;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.Configuration;
 import org.bukkit.entity.Player;
 
 /**
@@ -13,7 +12,6 @@ import org.bukkit.entity.Player;
  */
 public class PlayerManager {
 	private DynamicResourcepacks plugin;
-	private Configuration config;
 	private ResourcepackManager packManager;
 	
 	private static PlayerManager instance;
@@ -22,7 +20,6 @@ public class PlayerManager {
 		PlayerManager.instance = this;
 		
 		this.plugin = plugin;
-		this.config = this.plugin.getConfig();
 		this.packManager = packManager;
 	}
 	
@@ -58,6 +55,9 @@ public class PlayerManager {
 			
 			pack = new Resourcepack(name, input);
 			this.packManager.addResourcepack(pack);
+			this.packManager.saveConfigPacks();
+			this.plugin.saveConfig();
+			
 			return pack;
 		} else {
 			for(String name : this.packManager.getResourcepacks().keySet())
@@ -210,6 +210,9 @@ public class PlayerManager {
 			                               ChatColor.GREEN + " has been set to " +
 			                               ChatColor.DARK_GREEN + pack.getDisplayName());
 		}
+		
+		this.packManager.saveConfigForPlayer(player);
+		this.plugin.saveConfig();
 	}
 	
 	public void handleCurrentPackInfo(CommandSender sender) {

@@ -23,10 +23,13 @@ public class DynamicResourcepacks extends JavaPlugin {
 		
 		this.getServer().getPluginManager().registerEvents(this.playerListener, this);
 		this.getCommand("dynamicresourcepacks").setExecutor(this.playerListener);
+		
+		this.packManager.loadFromConfig();
 	}
  
 	@Override
 	public void onDisable(){
+		this.packManager.saveConfig();
 		this.saveConfig();
 		
 		this.playerManager = null;
