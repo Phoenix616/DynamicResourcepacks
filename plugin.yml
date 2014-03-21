@@ -23,6 +23,8 @@ permissions:
             dynamicresourcepacks.create: true
             dynamicresourcepacks.rename: true
             dynamicresourcepacks.edit: true
+            dynamicresourcepacks.remove: true
+            dynamicresourcepacks.unlock: true
     dynamicresourcepacks.usepack:
         description: Allows the player to use packs with the general permission
         default: true
@@ -46,7 +48,7 @@ permissions:
     dynamicresourcepacks.setpack.lock:
         description: Allows the player to lock the resourcepack of a player
         default: op
-    dynamicresourcepacks.list.selected:
+    dynamicresourcepacks.list.selectable:
         description: Allows the player to list all selectable resourcepacks
         default: true
     dynamicresourcepacks.list.usable:
@@ -87,6 +89,9 @@ permissions:
         default: op
     dynamicresourcepacks.edit:
         description: Allows the player to edit a resourcepack (URL, permissions and display name)
+        default: op
+    dynamicresourcepacks.remove:
+        description: Allows the player to remove a resourcepack
         default: op
     dynamicresourcepacks.unlock:
         description: Allows the player to unlock the resourcepack of a player

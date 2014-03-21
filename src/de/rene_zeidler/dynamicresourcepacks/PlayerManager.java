@@ -3,6 +3,8 @@ package de.rene_zeidler.dynamicresourcepacks;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.util.ChatPaginator;
+import org.bukkit.util.ChatPaginator.ChatPage;
 
 /**
  * Handles all actions that alter the resourcepack of players, including checks such as permissions or locked packs.
@@ -69,74 +71,245 @@ public class PlayerManager {
 	}
 	
 	public boolean handleDynamicResourcepacksCommand(CommandSender sender, String label, String[] args) {
-		//TODO
+		if(args.length == 0) {
+			this.printHelp(sender, label, null, args);
+		} else {
+			String command = args[0];
+			String[] newArgs = new String[args.length - 1];
+			for(int i = 0; i < newArgs.length; i++)
+				newArgs[i] = args[i + 1];
+			
+			if("help".equalsIgnoreCase(command) ||
+			   "?"   .equalsIgnoreCase(command)) {
+				this.printHelp(sender, label, null, newArgs);
+				
+			} else if("view".equalsIgnoreCase(command) ||
+					  "show".equalsIgnoreCase(command)) {
+				//TODO
+				
+			} else if("list".equalsIgnoreCase(command)) {
+				//TODO
+				
+			} else if("create".equalsIgnoreCase(command) ||
+					  "add"   .equalsIgnoreCase(command)) {
+				//TODO
+				
+			} else if("edit".equalsIgnoreCase(command) ||
+					  "set" .equalsIgnoreCase(command)) {
+				//TODO
+				
+			} else if("rename".equalsIgnoreCase(command)) {
+				//TODO
+				
+			} else if("remove".equalsIgnoreCase(command) ||
+					  "delete".equalsIgnoreCase(command)) {
+				//TODO
+				
+			} else if("switch".equalsIgnoreCase(command) ||
+					  "use"   .equalsIgnoreCase(command)) {
+				//TODO
+				
+			} else if("version".equalsIgnoreCase(command) ||
+					  "ver"    .equalsIgnoreCase(command)) {
+				//TODO
+				
+			}
+		}
 		
 		return true;
+	}
+	
+	public void printHelp(CommandSender sender, String mainLabel, String setpackLabel, String[] args) {
+		if(mainLabel == null) mainLabel = "/dynamicresourcepacks";
+		else if(!mainLabel.startsWith("/")) mainLabel = "/" + mainLabel;
+		if(setpackLabel == null) setpackLabel = "/setresourcepack";
+		else if(!setpackLabel.startsWith("/")) setpackLabel = "/" + setpackLabel;
+		
+		StringBuilder msg = new StringBuilder();
+		
+		boolean foundTopic = false;
+		if(args.length > 0) {
+			if("aliases".equalsIgnoreCase(args[0])) {
+				foundTopic = true;
+				msg.append(ChatColor.GOLD);
+				msg.append(ChatColor.ITALIC);
+				msg.append("Showing aliases for DynamicResourcepacks commands:\n");
+				
+				msg.append(ChatColor.BLUE);
+				msg.append(mainLabel);
+				for(String alias : this.plugin.getCommand("dynamicresourcepacks").getAliases())
+					this.appendAlias(msg, alias);
+				msg.append("\n");
+				
+				
+				this.appendAliases(msg, mainLabel, "help", "?");
+				if(sender.hasPermission("dynamicresourcepacks.view.selected"))
+					this.appendAliases(msg, mainLabel, "view",   "show"  );
+				if(sender.hasPermission("dynamicresourcepacks.created"))
+					this.appendAliases(msg, mainLabel, "create", "add"   );
+				if(sender.hasPermission("dynamicresourcepacks.remove"))
+					this.appendAliases(msg, mainLabel, "remove", "delete");
+				this.appendAliases(msg, mainLabel, "version", "ver");
+				
+				msg.append(ChatColor.BLUE);
+				msg.append(setpackLabel);
+				for(String alias : this.plugin.getCommand("setresourcepack").getAliases())
+					this.appendAlias(msg, alias);
+				msg.append("\n");
+				
+				this.appendAliases(msg, setpackLabel, "...", mainLabel + " use ...", mainLabel + " switch ...");
+			}
+		}
+		
+		if(!foundTopic) {
+			msg.append(ChatColor.GOLD);
+			msg.append(ChatColor.ITALIC);
+			msg.append("Showing help for DynamicResourcepacks:\n");
+			
+			this.appendHelpEntry(msg, mainLabel, "help",           "Shows a list of available commands");
+			this.appendHelpEntry(msg, mainLabel, "help aliases",   "Shows a list of available command aliases");
+			
+			this.appendHelpEntry(msg, mainLabel, "list",        "Lists all available resourcepacks",                    sender, "dynamicresourcepacks.list.selectable");
+			this.appendHelpEntry(msg, mainLabel, "view",        "Shows which resourcepack you have currently selected", sender, "dynamicresourcepacks.view.selected"  );
+			this.appendHelpEntry(msg, mainLabel, "view <pack>", "Shows information on the given resourcepack",          sender, "dynamicresourcepacks.view.selectable");
+			
+			this.appendHelpEntry(msg, mainLabel, "create <name> <url> [displayName] [usePerm] [setSelfPerm]", null, sender, "dynamicresourcepacks.create"      );
+			this.appendHelpEntry(msg, mainLabel, "rename <oldName> <newName>",                                null, sender, "dynamicresourcepacks.rename"      );
+			this.appendHelpEntry(msg, mainLabel, "edit <name> <setting> <value>",                             null, sender, "dynamicresourcepacks.edit"        );
+			this.appendHelpEntry(msg, mainLabel, "remove <name>",                                             null, sender, "dynamicresourcepacks.remove"      );
+			this.appendHelpEntry(msg, mainLabel, "lock <player>",                                             null, sender, "dynamicresourcepacks.setpack.lock");
+			this.appendHelpEntry(msg, mainLabel, "unlock <player>",                                           null, sender, "dynamicresourcepacks.unlock"      );
+			
+			this.appendHelpEntry(msg, mainLabel, "version", "Show the version of this plugin");
+			
+			boolean canLock = sender.hasPermission("dynamicresourcepacks.setpack.lock");
+			this.appendHelpEntry(msg, setpackLabel, "<pack>" + (canLock ? " [lock]" : ""), "Use the given resourcepack");
+			this.appendHelpEntry(msg, setpackLabel, "<player> <pack>" + (canLock ? " [lock]" : ""), "Sets the resourcepack of a given player", sender, "dynamicresourcepacks.setpack.others");
+		}
+	
+		sender.sendMessage(msg.toString());
+	}
+	
+	public void appendAliases(StringBuilder stringBuilder, String mainCommand, String mainAlias, String... aliases) {
+		stringBuilder.append(ChatColor.BLUE);
+		stringBuilder.append(mainCommand);
+		stringBuilder.append(' ');
+		stringBuilder.append(mainAlias);
+		for(String alias : aliases)
+			this.appendAlias(stringBuilder, alias);
+		stringBuilder.append("\n");
+	}
+	
+	public void appendAlias(StringBuilder stringBuilder, String alias) {
+		stringBuilder.append(ChatColor.BLUE);
+		stringBuilder.append(" / ");
+		stringBuilder.append(ChatColor.DARK_AQUA);
+		stringBuilder.append(alias);
+	}
+	
+	public void appendHelpEntry(StringBuilder stringBuilder, String mainCommand, String commandArgs, String description) {
+		this.appendHelpEntry(stringBuilder, mainCommand, commandArgs, description, null, null);
+	}
+	
+	public void appendHelpEntry(StringBuilder stringBuilder, String mainCommand, String commandArgs, String description, CommandSender sender, String permission) {
+		if(permission == null || permission.isEmpty() || (sender != null && sender.hasPermission(permission))) {
+			stringBuilder.append(ChatColor.BLUE);
+			stringBuilder.append(mainCommand);
+			if(commandArgs != null) {
+				stringBuilder.append(' ');
+				stringBuilder.append(commandArgs);
+			}
+			if(description != null) {
+				stringBuilder.append(ChatColor.DARK_AQUA);
+				stringBuilder.append(" - ");
+				stringBuilder.append(description);
+			}
+			stringBuilder.append("\n");
+		}
 	}
 	
 	public boolean handleSetResourcepackCommand(CommandSender sender, String label, String[] args) {
 		if(args.length == 0)
 			this.handleCurrentPackInfo(sender);
-		else if(sender.hasPermission("dynamicresourcepacks.setpack")) {
-			Player  player = null;
-			String  pack   = null;
-			boolean locked = false;
-			
-			if(args.length == 1) {
+		else if(args.length > 0 && ("help".equalsIgnoreCase(args[0]) || "?".equalsIgnoreCase(args[0]))) {
+			String[] newArgs = new String[args.length - 1];
+			for(int i = 0; i < newArgs.length; i++)
+				newArgs[i] = args[i + 1];
+			this.printHelp(sender, null, label, newArgs);
+		} else if(sender.hasPermission("dynamicresourcepacks.setpack")) {
+			this.parseSetResourcepack(sender, label, args);
+		} else {
+			sender.sendMessage(ChatColor.RED + "You don't have permission!");
+		}
+		
+		return true;
+	}
+	
+	/**
+	 * Parses the arguments of the setresourcepack command
+	 * 
+	 * @param sender The CommandSender
+	 * @param label The label used to execute this command
+	 * @param args The arguments
+	 * @return True if the command successfully set a resourcepack
+	 */
+	public boolean parseSetResourcepack(CommandSender sender, String label, String[] args) {
+		Player  player = null;
+		String  pack   = null;
+		boolean locked = false;
+		
+		if(args.length == 1) {
+			pack = args[0];
+		} else if(args.length == 2) {
+			if("lock".equals(args[1]) || "true".equals(args[1])) {
+				locked = true;
 				pack = args[0];
-			} else if(args.length == 2) {
-				if("lock".equals(args[1]) || "true".equals(args[1])) {
-					locked = true;
-					pack = args[0];
-				} else if("false".equals(args[1])) {
-					pack = args[0];
-				} else {
-					player = sender.getServer().getPlayer(args[0]);
-					if(player == null) {
-						this.printSetpackUsage(sender, label);
-						return true;
-					}
-					pack = args[1];
-				}
-			} else if(args.length == 3) {
+			} else if("false".equals(args[1])) {
+				pack = args[0];
+			} else {
 				player = sender.getServer().getPlayer(args[0]);
 				if(player == null) {
 					this.printSetpackUsage(sender, label);
-					return true;
+					return false;
 				}
 				pack = args[1];
-				if("lock".equals(args[2]) || "true".equals(args[2]))
-					locked = true;
-			} else {
+			}
+		} else if(args.length == 3) {
+			player = sender.getServer().getPlayer(args[0]);
+			if(player == null) {
 				this.printSetpackUsage(sender, label);
-				return true;
+				return false;
 			}
-			
-			if(player != null && !sender.hasPermission("dynamicresourcepacks.setpack.others")) {
-				sender.sendMessage(ChatColor.RED + "You don't have permission to set the resourcepack of other players!");
-				return true;
-			} else {
-				if(!(sender instanceof Player)) {
-					this.printSetpackUsage(sender, label);
-					return true;
-				} else
-					player = (Player)sender;
-			}
-			
-			if(locked && !sender.hasPermission("dynamicresourcepacks.setpack.lock")) {
-				sender.sendMessage(ChatColor.RED + "You don't have permission to lock the resourcepack of other players!");
-				return true;
-			}
-			
-			if(pack == null)
-				this.printSetpackUsage(sender, label);
-			else {
-				Resourcepack resourcepack = this.getResourcepackForInputString(sender, pack);
-				if(resourcepack != null)
-					this.setResourcepack(sender, player, resourcepack);
-			}
+			pack = args[1];
+			if("lock".equals(args[2]) || "true".equals(args[2]))
+				locked = true;
 		} else {
-			sender.sendMessage(ChatColor.RED + "You don't have permission!");
+			this.printSetpackUsage(sender, label);
+			return false;
+		}
+		
+		if(player != null && !sender.hasPermission("dynamicresourcepacks.setpack.others")) {
+			sender.sendMessage(ChatColor.RED + "You don't have permission to set the resourcepack of other players!");
+			return false;
+		} else {
+			if(!(sender instanceof Player)) {
+				this.printSetpackUsage(sender, label);
+				return false;
+			} else
+				player = (Player)sender;
+		}
+		
+		if(locked && !sender.hasPermission("dynamicresourcepacks.setpack.lock")) {
+			sender.sendMessage(ChatColor.RED + "You don't have permission to lock the resourcepack of other players!");
+			return false;
+		}
+		
+		if(pack == null)
+			this.printSetpackUsage(sender, label);
+		else {
+			Resourcepack resourcepack = this.getResourcepackForInputString(sender, pack);
+			if(resourcepack != null)
+				this.setResourcepack(sender, player, resourcepack);
 		}
 		
 		return true;
