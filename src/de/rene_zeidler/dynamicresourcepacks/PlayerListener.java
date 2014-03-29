@@ -1,14 +1,17 @@
 package de.rene_zeidler.dynamicresourcepacks;
 
+import java.util.List;
+
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
-public class PlayerListener implements Listener, CommandExecutor {
+public class PlayerListener implements Listener, CommandExecutor, TabCompleter {
 	private DynamicResourcepacks plugin;
 	private PlayerManager playerManager;
 	
@@ -35,5 +38,18 @@ public class PlayerListener implements Listener, CommandExecutor {
 			return this.playerManager.handleSetResourcepackCommand(sender, label, args);
 		
 		return false;
+	}
+
+	@Override
+	public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+		// TODO Debugging!
+		sender.sendMessage("Tab complete for: " + command.getName());
+		sender.sendMessage("Alias: \"" + alias + "\"");
+		int i = 0;
+		for(String arg : args) {
+			sender.sendMessage("Arg " + i + ": \"" + arg + "\"");
+			i++;
+		}
+		return null;
 	}
 }

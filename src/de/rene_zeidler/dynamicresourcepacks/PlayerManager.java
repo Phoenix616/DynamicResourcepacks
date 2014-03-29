@@ -13,7 +13,7 @@ import de.rene_zeidler.dynamicresourcepacks.Resourcepack.Permission;
  * Handles all actions that alter the resourcepack of players, including checks such as permissions or locked packs.
  * 
  * @author René Zeidler
- * @version 0.0.3
+ * @version 0.1.0
  */
 public class PlayerManager {
 	private DynamicResourcepacks plugin;
@@ -117,21 +117,21 @@ public class PlayerManager {
 				
 			} else if("remove".equalsIgnoreCase(command) ||
 					  "delete".equalsIgnoreCase(command)) {
-				//TODO
+				this.handleRemoveCommand(sender, label, newArgs);
 				
 			} else if("switch".equalsIgnoreCase(command) ||
 					  "use"   .equalsIgnoreCase(command)) {
-				//TODO
+				this.handleSetResourcepackCommand(sender, null, newArgs);
 				
 			} else if("lock".equalsIgnoreCase(command)) {
-				//TODO
+				this.handleLockCommand(sender, label, newArgs);
 			
 			} else if("unlock".equalsIgnoreCase(command)) {
-				//TODO
+				this.handleUnlockCommand(sender, label, newArgs);
 				
 			} else if("version".equalsIgnoreCase(command) ||
 					  "ver"    .equalsIgnoreCase(command)) {
-				//TODO
+				this.printVersion(sender);
 				
 			} else {
 				this.printHelp(sender, label, null, args);
@@ -307,6 +307,69 @@ public class PlayerManager {
 		}
 	}
 	
+	public void handleRemoveCommand(CommandSender sender, String label, String[] args) {
+		if(!sender.hasPermission("dynamicresourcepacks.remove")) {
+			sender.sendMessage(ChatColor.RED + "You don't have permission!");
+			return;
+		}
+
+		if(args.length == 1) {
+			Resourcepack pack = this.getResourcepackForInputString(sender, args[0]);
+			if(pack != null) {
+				this.packManager.removeResourcepack(pack);
+				sender.sendMessage(ChatColor.GREEN      + "Successfully removed the resourcepack " +
+						           ChatColor.DARK_GREEN + pack.getDisplayName());
+				this.packManager.saveConfig();
+				this.plugin.saveConfig();
+			}
+		} else {
+			sender.sendMessage(ChatColor.RED + "Usage: /" + label + " remove <name>");
+		}
+	}
+	
+	public void handleUnlockCommand(CommandSender sender, String label, String[] args) {
+		if(!sender.hasPermission("dynamicresourcepacks.unlock")) {
+			sender.sendMessage(ChatColor.RED + "You don't have permission!");
+			return;
+		}
+		
+		this.handleSetLockStatus(sender, label, args, false);
+	}
+	
+	public void handleLockCommand(CommandSender sender, String label, String[] args) {
+		if(!sender.hasPermission("dynamicresourcepacks.setpack.lock")) {
+			sender.sendMessage(ChatColor.RED + "You don't have permission!");
+			return;
+		}
+
+		this.handleSetLockStatus(sender, label, args, true);
+	}
+	
+	public void handleSetLockStatus(CommandSender sender, String label, String[] args, boolean status) {
+		Player player;
+		if(args.length == 0) {
+			if(sender instanceof Player)
+				player = (Player)sender;
+			else {
+				sender.sendMessage(ChatColor.RED + "Usage: /" + label + " unlock <player>");
+				return;
+			}
+		} else {
+			player = sender.getServer().getPlayer(args[0]);
+			if(player == null) {
+				sender.sendMessage(ChatColor.RED + "There is no online player named " + args[0]);
+				return;
+			}
+		}
+		
+		if(this.packManager.getLocked(player) == status)
+			sender.sendMessage(ChatColor.GOLD + "The resourcepack of " + player.getName() + " is already " + (status ? "locked" : "unlocked"));
+		else {
+			this.packManager.setLocked(player, false);
+			sender.sendMessage(ChatColor.GREEN + (status ? "Locked" : "Unlocked") + " the resourcepack of " + player.getName());
+		}
+	}
+	
 	public void printResourcepackList(CommandSender sender, Permissible player) {
 		List<Resourcepack> visiblePacks;
 		
@@ -332,6 +395,10 @@ public class PlayerManager {
 				sender.sendMessage(ChatColor.BLUE + pack.getDisplayName()
 						+ ChatColor.DARK_AQUA + " (" + pack.getName() + ")");
 		}
+	}
+	
+	public void printVersion(CommandSender sender) {
+		sender.sendMessage(ChatColor.DARK_AQUA + this.plugin.getDescription().getFullName() + ChatColor.BLUE + " by René Zeidler");
 	}
 	
 	public void printHelp(CommandSender sender, String mainLabel, String setpackLabel, String[] args) {

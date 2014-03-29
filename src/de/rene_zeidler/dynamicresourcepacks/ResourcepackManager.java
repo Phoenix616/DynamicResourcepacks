@@ -20,7 +20,7 @@ import de.rene_zeidler.dynamicresourcepacks.Resourcepack.Permission;
  * Stores the URL of the resourcepack for players and sends it to the player.
  * 
  * @author René Zeidler
- * @version 0.0.3
+ * @version 0.1.0
  */
 public class ResourcepackManager {
 	private DynamicResourcepacks plugin;
