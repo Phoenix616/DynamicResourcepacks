@@ -1,10 +1,13 @@
 package de.rene_zeidler.dynamicresourcepacks;
 
+import java.util.List;
+
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.util.ChatPaginator;
-import org.bukkit.util.ChatPaginator.ChatPage;
+import org.bukkit.permissions.Permissible;
+
+import de.rene_zeidler.dynamicresourcepacks.Resourcepack.Permission;
 
 /**
  * Handles all actions that alter the resourcepack of players, including checks such as permissions or locked packs.
@@ -55,17 +58,19 @@ public class PlayerManager {
 			if(sender.hasPermission("dynamicresourcepacks.rename"))
 				sender.sendMessage(ChatColor.GOLD + "Use " + ChatColor.YELLOW + "/dynamicresourepacks rename " + pack + " <newName>" + ChatColor.GOLD + " to rename it.");
 			
-			pack = new Resourcepack(name, input);
+			pack = new Resourcepack(name, input, sender.getName());
 			this.packManager.addResourcepack(pack);
 			this.packManager.saveConfigPacks();
 			this.plugin.saveConfig();
 			
 			return pack;
 		} else {
-			for(String name : this.packManager.getResourcepacks().keySet())
-				if(name.startsWith(input)) return this.packManager.getResourcepackForName(name);
+			for(Resourcepack pack : this.packManager.getResourcepacks())
+				if(pack.getName().startsWith(input)) return pack;
 			
-			sender.sendMessage(ChatColor.RED + "The resourcepack you entered (" + ChatColor.GOLD + input + ChatColor.RED + ") does not exist");
+			sender.sendMessage(ChatColor.RED  + "The resourcepack you entered (" +
+			                   ChatColor.GOLD + input +
+			                   ChatColor.RED  + ") does not exist");
 			return null;
 		}
 	}
@@ -85,21 +90,30 @@ public class PlayerManager {
 				
 			} else if("view".equalsIgnoreCase(command) ||
 					  "show".equalsIgnoreCase(command)) {
-				//TODO
+				this.handleViewCommand(sender, label, newArgs);
 				
 			} else if("list".equalsIgnoreCase(command)) {
-				//TODO
+				this.handleListCommand(sender, label, newArgs);
 				
 			} else if("create".equalsIgnoreCase(command) ||
 					  "add"   .equalsIgnoreCase(command)) {
-				//TODO
+				this.handleCreateCommand(sender, label, newArgs);
 				
 			} else if("edit".equalsIgnoreCase(command) ||
 					  "set" .equalsIgnoreCase(command)) {
-				//TODO
+				this.handleEditCommand(sender, label, newArgs);
+			
+			} else if(command.startsWith("set" ) ||
+					  command.startsWith("edit")) {
+				String property = command.substring(command.startsWith("set") ? 3 : 4);
+				if(args.length > 1) {
+					args[0] = args[1];
+					args[1] = property;
+				}
+				this.handleEditCommand(sender, label, args);
 				
 			} else if("rename".equalsIgnoreCase(command)) {
-				//TODO
+				this.handleRenameCommand(sender, label, newArgs);
 				
 			} else if("remove".equalsIgnoreCase(command) ||
 					  "delete".equalsIgnoreCase(command)) {
@@ -109,14 +123,215 @@ public class PlayerManager {
 					  "use"   .equalsIgnoreCase(command)) {
 				//TODO
 				
+			} else if("lock".equalsIgnoreCase(command)) {
+				//TODO
+			
+			} else if("unlock".equalsIgnoreCase(command)) {
+				//TODO
+				
 			} else if("version".equalsIgnoreCase(command) ||
 					  "ver"    .equalsIgnoreCase(command)) {
 				//TODO
+				
+			} else {
+				this.printHelp(sender, label, null, args);
 				
 			}
 		}
 		
 		return true;
+	}
+	
+	public void handleViewCommand(CommandSender sender, String label, String[] args) {
+		if(args.length == 0) {
+			this.handleCurrentPackInfo(sender, label);
+			return;
+		}
+		
+		Resourcepack pack = this.getResourcepackForInputString(sender, args[0]);
+		if(pack != null)
+			this.printPackInfo(sender, pack);
+	}
+	
+	public void handleListCommand(CommandSender sender, String label, String[] args) {
+		if(args.length == 0 || !sender.hasPermission("dynamicresourcepacks.list.others"))
+			this.printResourcepackList(sender, sender);
+		else {
+			Player player = sender.getServer().getPlayer(args[0]);
+			if(player != null)
+				this.printResourcepackList(sender, player);
+			else
+				sender.sendMessage(ChatColor.RED + "There is no online player named " + args[0]);
+		}
+	}
+	
+	public void handleCreateCommand(CommandSender sender, String label, String[] args) {
+		if(!sender.hasPermission("dynamicresourcepacks.create")) {
+			sender.sendMessage(ChatColor.RED + "You don't have permission!");
+			return;
+		}
+		
+		if(args.length >= 2) {
+			if(!ResourcepackManager.isValidURL(args[1])) {
+				sender.sendMessage(ChatColor.RED + "The URL you entered is not a valid URL!");
+				return;
+			}
+			
+			Resourcepack pack = new Resourcepack(args[0], args[1], sender.getName());
+			if(args.length >= 3)
+				pack.setDisplayName(args[2]);
+			if (args.length >= 4) {
+				Permission perm = Permission.valueOf(args[3].toUpperCase());
+				if(perm == null) {
+					sender.sendMessage(ChatColor.RED + "The general permission must be either NONE, GENERAL or SPECIFIC!");
+					return;
+				}
+				pack.setGeneralPermission(perm);
+			}
+			if (args.length >= 5) {
+				Permission perm = Permission.valueOf(args[4].toUpperCase());
+				if(perm == null) {
+					sender.sendMessage(ChatColor.RED + "The use self permission must be either NONE, GENERAL or SPECIFIC!");
+					return;
+				}
+				pack.setUseSelfPermission(perm);
+			}
+			
+			this.packManager.addResourcepack(pack);
+			
+			sender.sendMessage(ChatColor.GREEN + "Successfully added resourcepack");
+			this.printPackInfo(sender, pack);
+
+		} else {
+			sender.sendMessage(ChatColor.RED + "Usage: /" + label + " create <name> <url> [displayName] [generalPermission] [useSelfPermission]");
+		}
+	}
+	
+	public void handleEditCommand(CommandSender sender, String label, String[] args) {
+		boolean canRename = sender.hasPermission("dynamicresourcepacks.rename");
+		boolean canEdit   = sender.hasPermission("dynamicresourcepacks.edit");
+		
+		if(args.length != 3) {
+			if(canEdit)
+				sender.sendMessage(ChatColor.RED + "Usage: /" + label + " edit <name> <property> <value>");
+			else if(canRename)
+				sender.sendMessage(ChatColor.RED + "Usage: /" + label + " rename <oldName> <newName>");
+			else
+				sender.sendMessage(ChatColor.RED + "You don't have permission!");
+			return;
+		}
+		
+		if("name".equalsIgnoreCase(args[1])) {
+			this.handleRenameCommand(sender, label, new String[] {args[0], args[2]});
+		} else if(canEdit) {
+			Resourcepack pack = this.getResourcepackForInputString(sender, args[0]);
+			if(pack == null)
+				return;
+			
+			if("url".equalsIgnoreCase(args[1])) {
+				if(ResourcepackManager.isValidURL(args[2])) {
+					pack.setURL(args[2]);
+					sender.sendMessage(ChatColor.GREEN      + "Successfully set the URL of " +
+					                   ChatColor.DARK_GREEN + pack.getDisplayName() +
+					                   ChatColor.GREEN      + " to " +
+					                   ChatColor.DARK_GREEN + pack.getURL());
+				} else {
+					sender.sendMessage(ChatColor.RED + "The URL you entered is not a valid URL!");
+					return;
+				}
+				
+			} else if("displayName".equalsIgnoreCase(args[1])) {
+				pack.setDisplayName(args[2]);
+				sender.sendMessage(ChatColor.GREEN      + "Successfully set the display name of " +
+				                   ChatColor.DARK_GREEN + pack.getName() +
+				                   ChatColor.GREEN      + " to " +
+				                   ChatColor.DARK_GREEN + pack.getDisplayName());
+				
+			} else if("generalPermission".equalsIgnoreCase(args[1]) ||
+					  "permission"       .equalsIgnoreCase(args[1]) ||
+					  "useSelfPermission".equalsIgnoreCase(args[1]) ||
+					  "selfPermission"   .equalsIgnoreCase(args[1])) {
+				Permission perm = this.getResourcepackPermission(args[2]);
+				if(perm == null) {
+					sender.sendMessage(ChatColor.RED + "The permission must be either NONE, GENERAL or SPECIFIC!");
+					return;
+				}
+				
+				if("generalPermission".equalsIgnoreCase(args[1]) ||
+				   "permission"       .equalsIgnoreCase(args[1])) {
+					pack.setGeneralPermission(perm);
+					sender.sendMessage(ChatColor.GREEN      + "Successfully set the general permission of " +
+			                           ChatColor.DARK_GREEN + pack.getDisplayName() +
+			                           ChatColor.GREEN      + " to " +
+			                           ChatColor.DARK_GREEN + pack.getGeneralPermission().toString());
+				} else {
+					pack.setUseSelfPermission(perm);
+					sender.sendMessage(ChatColor.GREEN      + "Successfully set the use self permission of " +
+	                                   ChatColor.DARK_GREEN + pack.getDisplayName() +
+	                                   ChatColor.GREEN      + " to " +
+	                                   ChatColor.DARK_GREEN + pack.getUseSelfPermission().toString());
+				}
+			
+			} else {
+				sender.sendMessage(ChatColor.RED + "Unknown property \"" + args[1] + "\"!");
+				return;
+			}
+			
+			this.packManager.saveConfigPacks();
+			this.plugin.saveConfig();
+			
+		} else {
+			sender.sendMessage(ChatColor.RED + "You don't have permission!");
+		}
+	}
+	
+	public void handleRenameCommand(CommandSender sender, String label, String[] args) {
+		if(!sender.hasPermission("dynamicresourcepacks.edit")) {
+			sender.sendMessage(ChatColor.RED + "You don't have permission!");
+			return;
+		}
+		
+		if(args.length == 2) {
+			Resourcepack pack = this.getResourcepackForInputString(sender, args[0]);
+			if(pack != null) {
+				this.packManager.renameResourcepack(pack, args[1]);
+				sender.sendMessage(ChatColor.GREEN      + "Successfully set the id (name) of " +
+                                   ChatColor.DARK_GREEN + pack.getDisplayName() +
+                                   ChatColor.GREEN      + " to " +
+                                   ChatColor.DARK_GREEN + pack.getName());
+				this.packManager.saveConfig();
+				this.plugin.saveConfig();
+			}
+		} else {
+			sender.sendMessage(ChatColor.RED + "Usage: /" + label + " rename <oldName> <newName>");
+		}
+	}
+	
+	public void printResourcepackList(CommandSender sender, Permissible player) {
+		List<Resourcepack> visiblePacks;
+		
+		if(player.hasPermission("dynamicresourcepacks.list.all"))
+			visiblePacks = this.packManager.getResourcepacks();
+		else if(player.hasPermission("dynamicresourcepacks.list.usable"))
+			visiblePacks = this.packManager.getUsableResourcepacks(player);
+		else if(player.hasPermission("dynamicresourcepacks.list.selectable"))
+			visiblePacks = this.packManager.getUsableResourcepacks(player);
+		else {
+			if(sender == player)
+				sender.sendMessage(ChatColor.RED + "You don't have permission!");
+			else
+				sender.sendMessage(ChatColor.RED + "The player doesn't have permission to view the list of resourcepacks!");
+			return;
+		}
+		
+		if(visiblePacks.size() == 0) {
+			sender.sendMessage(ChatColor.RED + "There are currently no available resourcepacks!");
+		} else {
+			sender.sendMessage(ChatColor.GOLD + "Available resourcepacks (" + visiblePacks.size() + "):");
+			for(Resourcepack pack : visiblePacks)
+				sender.sendMessage(ChatColor.BLUE + pack.getDisplayName()
+						+ ChatColor.DARK_AQUA + " (" + pack.getName() + ")");
+		}
 	}
 	
 	public void printHelp(CommandSender sender, String mainLabel, String setpackLabel, String[] args) {
@@ -169,16 +384,18 @@ public class PlayerManager {
 			this.appendHelpEntry(msg, mainLabel, "help",           "Shows a list of available commands");
 			this.appendHelpEntry(msg, mainLabel, "help aliases",   "Shows a list of available command aliases");
 			
-			this.appendHelpEntry(msg, mainLabel, "list",        "Lists all available resourcepacks",                    sender, "dynamicresourcepacks.list.selectable");
-			this.appendHelpEntry(msg, mainLabel, "view",        "Shows which resourcepack you have currently selected", sender, "dynamicresourcepacks.view.selected"  );
-			this.appendHelpEntry(msg, mainLabel, "view <pack>", "Shows information on the given resourcepack",          sender, "dynamicresourcepacks.view.selectable");
+			this.appendHelpEntry(msg, mainLabel, "list",          "Lists all available resourcepacks",                      sender, "dynamicresourcepacks.list.selectable");
+			this.appendHelpEntry(msg, mainLabel, "list <player>", "Lists all for the given player available resourcepacks", sender, "dynamicresourcepacks.list.others");
+			this.appendHelpEntry(msg, mainLabel, "view",          "Shows which resourcepack you have currently selected",   sender, "dynamicresourcepacks.view.selected"  );
+			this.appendHelpEntry(msg, mainLabel, "view <pack>",   "Shows information on the given resourcepack",            sender, "dynamicresourcepacks.view.selectable");
 			
-			this.appendHelpEntry(msg, mainLabel, "create <name> <url> [displayName] [usePerm] [setSelfPerm]", null, sender, "dynamicresourcepacks.create"      );
-			this.appendHelpEntry(msg, mainLabel, "rename <oldName> <newName>",                                null, sender, "dynamicresourcepacks.rename"      );
-			this.appendHelpEntry(msg, mainLabel, "edit <name> <setting> <value>",                             null, sender, "dynamicresourcepacks.edit"        );
-			this.appendHelpEntry(msg, mainLabel, "remove <name>",                                             null, sender, "dynamicresourcepacks.remove"      );
-			this.appendHelpEntry(msg, mainLabel, "lock <player>",                                             null, sender, "dynamicresourcepacks.setpack.lock");
-			this.appendHelpEntry(msg, mainLabel, "unlock <player>",                                           null, sender, "dynamicresourcepacks.unlock"      );
+			this.appendHelpEntry(msg, mainLabel, "create <name> <url> [displayName] [generalPermission] [useSelfPermission]",
+					                                                              null, sender, "dynamicresourcepacks.create"      );
+			this.appendHelpEntry(msg, mainLabel, "rename <oldName> <newName>",    null, sender, "dynamicresourcepacks.rename"      );
+			this.appendHelpEntry(msg, mainLabel, "edit <name> <setting> <value>", null, sender, "dynamicresourcepacks.edit"        );
+			this.appendHelpEntry(msg, mainLabel, "remove <name>",                 null, sender, "dynamicresourcepacks.remove"      );
+			this.appendHelpEntry(msg, mainLabel, "lock <player>",                 null, sender, "dynamicresourcepacks.setpack.lock");
+			this.appendHelpEntry(msg, mainLabel, "unlock <player>",               null, sender, "dynamicresourcepacks.unlock"      );
 			
 			this.appendHelpEntry(msg, mainLabel, "version", "Show the version of this plugin");
 			
@@ -351,36 +568,36 @@ public class PlayerManager {
 				if(sender.hasPermission("dynamicresourcepacks.unlock")) {
 					if(!lock) {
 						this.packManager.setLocked(player, false);
-						if(useSelf) sender.sendMessage(ChatColor.GREEN + "Your resourcepack has been unlocked");
-						else        sender.sendMessage(ChatColor.GREEN + "The resourcepack of " +
+						if(useSelf) sender.sendMessage(ChatColor.GREEN      + "Your resourcepack has been unlocked");
+						else        sender.sendMessage(ChatColor.GREEN      + "The resourcepack of " +
 						                               ChatColor.DARK_GREEN + player.getName() +
-						                               ChatColor.GREEN + " has been unlocked");
+						                               ChatColor.GREEN      + " has been unlocked");
 					}
 				} else {
-					if(useSelf) sender.sendMessage(ChatColor.RED + "Your resourcepack is locked!");
-					else        sender.sendMessage(ChatColor.RED + "The resourcepack of " +
+					if(useSelf) sender.sendMessage(ChatColor.RED  + "Your resourcepack is locked!");
+					else        sender.sendMessage(ChatColor.RED  + "The resourcepack of " +
 					                               ChatColor.GOLD + player.getName() +
-					                               ChatColor.RED + " is locked!");
+					                               ChatColor.RED  + " is locked!");
 					return;
 				}
 			} else
 				return;
 		} else if(lock) {
 			this.packManager.setLocked(player, false);
-			if(useSelf) sender.sendMessage(ChatColor.GREEN + "Your resourcepack has been unlocked");
-			else        sender.sendMessage(ChatColor.GREEN + "The resourcepack of " +
+			if(useSelf) sender.sendMessage(ChatColor.GREEN      + "Your resourcepack has been unlocked");
+			else        sender.sendMessage(ChatColor.GREEN      + "The resourcepack of " +
 			                               ChatColor.DARK_GREEN + player.getName() +
-			                               ChatColor.GREEN + " has been unlocked");
+			                               ChatColor.GREEN      + " has been unlocked");
 		}
 		
 		this.packManager.setResourcepack(player, pack);
 		
 		if(senderExists) {
-			if(useSelf) sender.sendMessage(ChatColor.GREEN + "You now use the resourcepack " +
+			if(useSelf) sender.sendMessage(ChatColor.GREEN      + "You now use the resourcepack " +
 			                               ChatColor.DARK_GREEN + pack.getDisplayName());
-			else        sender.sendMessage(ChatColor.GREEN + "The resourcepack of " +
+			else        sender.sendMessage(ChatColor.GREEN      + "The resourcepack of " +
 			                               ChatColor.DARK_GREEN + player.getName() +
-			                               ChatColor.GREEN + " has been set to " +
+			                               ChatColor.GREEN      + " has been set to " +
 			                               ChatColor.DARK_GREEN + pack.getDisplayName());
 		}
 		
@@ -426,6 +643,8 @@ public class PlayerManager {
 		                   ChatColor.AQUA      + pack.getName() +
 		                   ChatColor.DARK_AQUA + ")");
 		if(sender.hasPermission("dynamicresourcepacks.view.full")) {
+			sender.sendMessage(ChatColor.DARK_AQUA + "Added By: " + 
+	                           ChatColor.AQUA      + pack.getAddedBy());
 			sender.sendMessage(ChatColor.DARK_AQUA + "URL: " + 
 			                   ChatColor.AQUA      + pack.getURL());
 			sender.sendMessage(ChatColor.DARK_AQUA + "General Permission: " + 
@@ -466,5 +685,13 @@ public class PlayerManager {
 		}
 		
 		sender.sendMessage(msg.toString());
+	}
+	
+	public Permission getResourcepackPermission(String s) {
+		try {
+			return Permission.valueOf(s.toUpperCase());
+		} catch(IllegalArgumentException e) {
+			return null;
+		}
 	}
 }

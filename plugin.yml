@@ -19,6 +19,7 @@ permissions:
             dynamicresourcepacks.usepack.*: true
             dynamicresourcepacks.setpack.*: true
             dynamicresourcepacks.list.all: true
+            dynamicresourcepacks.list.others: true
             dynamicresourcepacks.view.all: true
             dynamicresourcepacks.create: true
             dynamicresourcepacks.rename: true
@@ -54,12 +55,15 @@ permissions:
     dynamicresourcepacks.list.usable:
         description: Allows the player to list all usable (but not neccessarily selectable) resourcepacks
         default: op
-            dynamicresourcepacks.list.selected: true
+            dynamicresourcepacks.list.selectable: true
     dynamicresourcepacks.list.all:
         description: Allows the player to list all resourcepacks, even the not usable
         default: op
         children:
             dynamicresourcepacks.list.usable: true
+    dynamicresourcepacks.list.others:
+        description: Allows the player to see the resourcepack list from the view of another player
+        default: op
     dynamicresourcepacks.view.selected:
         description: Allows the player to show the name of the currently selected resourcepack
         default: true

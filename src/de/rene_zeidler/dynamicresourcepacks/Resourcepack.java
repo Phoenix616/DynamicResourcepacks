@@ -6,6 +6,7 @@ public class Resourcepack {
 	private String name;
 	private String displayName;
 	private String url;
+	private String addedBy;
 	/**
 	 * The permission needed to get this resourcepack.
 	 * If the player doesn't have this permission, there is no way for them to get it.
@@ -33,18 +34,19 @@ public class Resourcepack {
 		SPECIFIC
 	}
 	
-	public Resourcepack(String name, String url) {
-		this(name, name, url, Permission.GENERAL, Permission.SPECIFIC);
+	public Resourcepack(String name, String url, String addedBy) {
+		this(name, name, url, addedBy, Permission.GENERAL, Permission.SPECIFIC);
 	}
 	
-	public Resourcepack(String name, String displayName, String url) {
-		this(name, displayName, url, Permission.GENERAL, Permission.SPECIFIC);
+	public Resourcepack(String name, String displayName, String url, String addedBy) {
+		this(name, displayName, url, addedBy, Permission.GENERAL, Permission.SPECIFIC);
 	}
 	
-	public Resourcepack(String name, String displayName, String url, Permission generalPermission, Permission useSelfPermission) {
+	public Resourcepack(String name, String displayName, String url, String addedBy, Permission generalPermission, Permission useSelfPermission) {
 		this.name = name;
 		this.displayName = displayName;
 		this.url = url;
+		this.addedBy = addedBy;
 		this.generalPermission = generalPermission;
 		this.useSelfPermission = useSelfPermission;
 	}
@@ -107,5 +109,13 @@ public class Resourcepack {
 	public boolean checkUseSelfPermission(Permissible player) {
 		if(this.useSelfPermission == Permission.NONE) return true;
 		return player.hasPermission("dynamicresourcepacks.usepack" + (this.generalPermission == Permission.SPECIFIC ? this.name : "")) || player.hasPermission("dynamicresourcepacks.usepack.*");
+	}
+
+	public String getAddedBy() {
+		return addedBy;
+	}
+
+	public void setAddedBy(String addedBy) {
+		this.addedBy = addedBy;
 	}
 }

@@ -1,5 +1,6 @@
 package de.rene_zeidler.dynamicresourcepacks;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -11,6 +12,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
+import org.bukkit.permissions.Permissible;
 
 import de.rene_zeidler.dynamicresourcepacks.Resourcepack.Permission;
 
@@ -24,7 +26,7 @@ public class ResourcepackManager {
 	private DynamicResourcepacks plugin;
 	private Configuration config;
 	
-	private static final Resourcepack EMPTY_PACK = new Resourcepack("empty", "Empty (no pack selected)", "", Permission.NONE, Permission.NONE);
+	private static final Resourcepack EMPTY_PACK = new Resourcepack("empty", "Empty (no pack selected)", "", "Default", Permission.NONE, Permission.NONE);
 	
 	private HashMap<String, Resourcepack> packs;
 	private HashMap<Player, String> currentPacks;
@@ -219,7 +221,7 @@ public class ResourcepackManager {
 	 * @param newName The new name
 	 */
 	public void renameResourcepack(String oldName, String newName) {
-		if(!this.packs.containsKey(oldName)) return;
+		if(!this.packs.containsKey(oldName) || newName == null) return;
 		Resourcepack pack = this.packs.get(oldName);
 		this.packs.remove(oldName);
 		pack.setName(newName);
@@ -263,11 +265,39 @@ public class ResourcepackManager {
 	}
 	
 	/**
-	 * Returns the HashMap of pack names and the corresponding resourcepacks.
-	 * @return The HashMap
+	 * Returns a list of all resourcepacks.
+	 * @return The list
 	 */
-	public HashMap<String, Resourcepack> getResourcepacks() {
-		return this.packs;
+	public List<Resourcepack> getResourcepacks() {
+		return new ArrayList<Resourcepack>(this.packs.values());
+	}
+	
+	/**
+	 * Returns all selectable resourcepacks for a player.
+	 * (the player has the corresponding use self permission)
+	 * @param player The player
+	 * @return The list
+	 */
+	public List<Resourcepack> getSelectableResourcepacks(Permissible player) {
+		ArrayList<Resourcepack> packs = new ArrayList<Resourcepack>();
+		for(Resourcepack pack : this.packs.values())
+			if(pack.checkUseSelfPermission(player))
+				packs.add(pack);
+		return packs;
+	}
+	
+	/**
+	 * Returns all usable resourcepacks for a player.
+	 * (the player has the corresponding general permission)
+	 * @param player The player
+	 * @return The list
+	 */
+	public List<Resourcepack> getUsableResourcepacks(Permissible player) {
+		ArrayList<Resourcepack> packs = new ArrayList<Resourcepack>();
+		for(Resourcepack pack : this.packs.values())
+			if(pack.checkGeneralPermission(player))
+				packs.add(pack);
+		return packs;
 	}
 	
 	/**
@@ -307,6 +337,7 @@ public class ResourcepackManager {
 			ConfigurationSection p = section.createSection(pack.getName());
 			p.set("displayName", pack.getDisplayName());
 			p.set("url", pack.getURL());
+			p.set("addedBy", pack.getAddedBy());
 			p.set("generalPermission", pack.getGeneralPermission().toString());
 			p.set("useSelfPermission", pack.getUseSelfPermission().toString());
 		}
@@ -353,6 +384,7 @@ public class ResourcepackManager {
 						name,
 						p.getString("displayName"),
 						p.getString("url"),
+						p.getString("addedBy"),
 						Permission.valueOf(p.getString("generalPermission")),
 						Permission.valueOf(p.getString("useSelfPermission")));
 				this.packs.put(name, pack);
