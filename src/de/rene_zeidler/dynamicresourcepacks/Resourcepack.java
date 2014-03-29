@@ -2,7 +2,7 @@ package de.rene_zeidler.dynamicresourcepacks;
 
 import org.bukkit.permissions.Permissible;
 
-public class Resourcepack {
+public class Resourcepack implements Comparable<Resourcepack> {
 	private String name;
 	private String displayName;
 	private String url;
@@ -103,12 +103,12 @@ public class Resourcepack {
 	
 	public boolean checkGeneralPermission(Permissible player) {
 		if(this.generalPermission == Permission.NONE) return true;
-		return player.hasPermission("dynamicresourcepacks.usepack" + (this.generalPermission == Permission.SPECIFIC ? this.name : "")) || player.hasPermission("dynamicresourcepacks.usepack.*");
+		return player.hasPermission("dynamicresourcepacks.usepack" + (this.generalPermission == Permission.SPECIFIC ? "." + this.name : "")) || player.hasPermission("dynamicresourcepacks.usepack.*");
 	}
 	
 	public boolean checkUseSelfPermission(Permissible player) {
 		if(this.useSelfPermission == Permission.NONE) return true;
-		return player.hasPermission("dynamicresourcepacks.usepack" + (this.generalPermission == Permission.SPECIFIC ? this.name : "")) || player.hasPermission("dynamicresourcepacks.usepack.*");
+		return player.hasPermission("dynamicresourcepacks.usepack" + (this.useSelfPermission == Permission.SPECIFIC ? "." + this.name : "")) || player.hasPermission("dynamicresourcepacks.usepack.*");
 	}
 
 	public String getAddedBy() {
@@ -117,5 +117,11 @@ public class Resourcepack {
 
 	public void setAddedBy(String addedBy) {
 		this.addedBy = addedBy;
+	}
+
+	@Override
+	public int compareTo(Resourcepack o) {
+		int compare = this.getDisplayName().compareTo(o.displayName);
+		return (compare != 0 ? compare : this.getName().compareTo(o.getName()));
 	}
 }

@@ -42,14 +42,7 @@ public class PlayerListener implements Listener, CommandExecutor, TabCompleter {
 
 	@Override
 	public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-		// TODO Debugging!
-		sender.sendMessage("Tab complete for: " + command.getName());
-		sender.sendMessage("Alias: \"" + alias + "\"");
-		int i = 0;
-		for(String arg : args) {
-			sender.sendMessage("Arg " + i + ": \"" + arg + "\"");
-			i++;
-		}
+		// TODO 
 		return null;
 	}
 }

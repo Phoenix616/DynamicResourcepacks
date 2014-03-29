@@ -66,8 +66,10 @@ public class ResourcepackManager {
 	 * @param pack The pack to send to the player
 	 */
 	protected void sendResourcepack(Player player, Resourcepack pack) {
-		if(player != null && pack != null && pack.getURL().isEmpty())
+		if(player != null && pack != null && !pack.getURL().isEmpty()) {
 			player.setResourcePack(pack.getURL());
+			this.plugin.getLogger().info("Sending resourcepack " + pack.getName() + " (" + pack.getURL() + ") to player " +  player.getName());;
+		}
 	}
 
 	/**
@@ -331,6 +333,7 @@ public class ResourcepackManager {
 	 * (The config itself is not automatically saved to the disk!)
 	 */
 	public void saveConfigPacks() {
+		this.config.set("emptyPackURL", EMPTY_PACK.getURL());
 		ConfigurationSection section = this.config.createSection("resourcepacks");
 		for(Resourcepack pack : this.packs.values()) {
 			if(pack == EMPTY_PACK) continue;
@@ -434,7 +437,7 @@ public class ResourcepackManager {
 	public boolean getLocked(Player player) {
 		List<MetadataValue> values = player.getMetadata("resourcepackLocked");
 		for (MetadataValue value : values)
-			if (value.getOwningPlugin() == this.plugin)
+			if (value.getOwningPlugin() instanceof DynamicResourcepacks)
 				return value.asBoolean();
 		return false;
 	}

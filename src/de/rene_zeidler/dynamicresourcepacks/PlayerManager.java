@@ -1,5 +1,6 @@
 package de.rene_zeidler.dynamicresourcepacks;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.bukkit.ChatColor;
@@ -390,6 +391,7 @@ public class PlayerManager {
 		if(visiblePacks.size() == 0) {
 			sender.sendMessage(ChatColor.RED + "There are currently no available resourcepacks!");
 		} else {
+			Collections.sort(visiblePacks);
 			sender.sendMessage(ChatColor.GOLD + "Available resourcepacks (" + visiblePacks.size() + "):");
 			for(Resourcepack pack : visiblePacks)
 				sender.sendMessage(ChatColor.BLUE + pack.getDisplayName()
@@ -417,8 +419,8 @@ public class PlayerManager {
 				msg.append(ChatColor.ITALIC);
 				msg.append("Showing aliases for DynamicResourcepacks commands:\n");
 				
-				msg.append(ChatColor.BLUE);
-				msg.append(mainLabel);
+				msg.append(ChatColor.DARK_AQUA);
+				msg.append("/dynamicresourcepacks");
 				for(String alias : this.plugin.getCommand("dynamicresourcepacks").getAliases())
 					this.appendAlias(msg, alias);
 				msg.append("\n");
@@ -426,15 +428,15 @@ public class PlayerManager {
 				
 				this.appendAliases(msg, mainLabel, "help", "?");
 				if(sender.hasPermission("dynamicresourcepacks.view.selected"))
-					this.appendAliases(msg, mainLabel, "view",   "show"  );
+					this.appendAliases(msg, mainLabel, "view", "show", "info");
 				if(sender.hasPermission("dynamicresourcepacks.created"))
-					this.appendAliases(msg, mainLabel, "create", "add"   );
+					this.appendAliases(msg, mainLabel, "create", "add");
 				if(sender.hasPermission("dynamicresourcepacks.remove"))
 					this.appendAliases(msg, mainLabel, "remove", "delete");
 				this.appendAliases(msg, mainLabel, "version", "ver");
 				
 				msg.append(ChatColor.BLUE);
-				msg.append(setpackLabel);
+				msg.append("/setresourcepack");
 				for(String alias : this.plugin.getCommand("setresourcepack").getAliases())
 					this.appendAlias(msg, alias);
 				msg.append("\n");
@@ -478,6 +480,7 @@ public class PlayerManager {
 		stringBuilder.append(ChatColor.BLUE);
 		stringBuilder.append(mainCommand);
 		stringBuilder.append(' ');
+		stringBuilder.append(ChatColor.DARK_AQUA);
 		stringBuilder.append(mainAlias);
 		for(String alias : aliases)
 			this.appendAlias(stringBuilder, alias);
@@ -485,9 +488,9 @@ public class PlayerManager {
 	}
 	
 	public void appendAlias(StringBuilder stringBuilder, String alias) {
-		stringBuilder.append(ChatColor.BLUE);
-		stringBuilder.append(" / ");
-		stringBuilder.append(ChatColor.DARK_AQUA);
+		stringBuilder.append(ChatColor.DARK_GRAY);
+		stringBuilder.append("/");
+		stringBuilder.append(ChatColor.AQUA);
 		stringBuilder.append(alias);
 	}
 	
@@ -689,7 +692,7 @@ public class PlayerManager {
 		Player p = (Player)sender;
 		if(sender.hasPermission("dynamicresourcepacks.view"))
 			if(this.packManager.hasResourcepack(p)) {
-				sender.sendMessage(ChatColor.BLUE + "" + ChatColor.ITALIC + "Currently selected resourcepack:");
+				sender.sendMessage(ChatColor.GOLD + "" + ChatColor.ITALIC + "Currently selected resourcepack:");
 				this.printPackInfo(sender, this.packManager.getResourcepack(p));
 			} else {
 				sender.sendMessage(ChatColor.RED + "You currently don't have a resourcepack selected!");
@@ -704,11 +707,11 @@ public class PlayerManager {
 	}
 	
 	public void printPackInfo(CommandSender sender, Resourcepack pack) {
-		sender.sendMessage(ChatColor.DARK_AQUA + "Resourcepack " + 
-		                   ChatColor.AQUA      + pack.getDisplayName() +
-		                   ChatColor.DARK_AQUA + " (id: " +
-		                   ChatColor.AQUA      + pack.getName() +
-		                   ChatColor.DARK_AQUA + ")");
+		sender.sendMessage(ChatColor.BLUE      + "Resourcepack " + 
+		                   ChatColor.DARK_AQUA + pack.getDisplayName() +
+		                   ChatColor.BLUE      + " (id: " +
+		                   ChatColor.DARK_AQUA + pack.getName() +
+		                   ChatColor.BLUE      + ")");
 		if(sender.hasPermission("dynamicresourcepacks.view.full")) {
 			sender.sendMessage(ChatColor.DARK_AQUA + "Added By: " + 
 	                           ChatColor.AQUA      + pack.getAddedBy());

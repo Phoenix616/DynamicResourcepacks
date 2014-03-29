@@ -1,102 +1,98 @@
 name: DynamicResourcepacks
 main: de.rene_zeidler.dynamicresourcepacks.DynamicResourcepacks
-version: 0.0.3
+version: 0.1.0
 
 commands:
-   dynamicresourcepacks:
-      description: Main DynamicResourcepacks command.
-      aliases: [dynamicresources, dynres, resourcepacks, packs]
-      usage: /<command>
-   setresourcepack:
-      description: Set the resourcepack for a player.
-      aliases: [resourcepack, setpack, pack]
-      usage: /<command>
+  dynamicresourcepacks:
+    description: Main DynamicResourcepacks command.
+    aliases: [dynamicresources, dynres, resourcepacks, packs]
+    usage: /<command>
+  setresourcepack:
+    description: Set the resourcepack for a player.
+    aliases: [resourcepack, setpack, pack]
+    usage: /<command>
 
 permissions:
-    dynamicresourcepacks.*:
-        description: Gives access to all DynamicResourcepacks commands
-        children:
-            dynamicresourcepacks.usepack.*: true
-            dynamicresourcepacks.setpack.*: true
-            dynamicresourcepacks.list.all: true
-            dynamicresourcepacks.list.others: true
-            dynamicresourcepacks.view.all: true
-            dynamicresourcepacks.create: true
-            dynamicresourcepacks.rename: true
-            dynamicresourcepacks.edit: true
-            dynamicresourcepacks.remove: true
-            dynamicresourcepacks.unlock: true
-    dynamicresourcepacks.usepack:
-        description: Allows the player to use packs with the general permission
-        default: true
-    dynamicresourcepacks.usepack.*:
-        description: Allows the player to use any resourcepack
-        default: op
-        children:
-            dynamicresourcepacks.usepack: true
-    dynamicresourcepacks.setpack.*:
-        description: Allows the player to set and lock the resourcepack of players freely
-        children:
-            dynamicresourcepacks.setpack: true
-            dynamicresourcepacks.setpack.others: true
-            dynamicresourcepacks.setpack.lock: true
-    dynamicresourcepacks.setpack:
-        description: Allows the player to select a resourcepack manually
-        default: true
-    dynamicresourcepacks.setpack.others:
-        description: Allows the player to set the resourcepack of other players manually
-        default: op
-    dynamicresourcepacks.setpack.lock:
-        description: Allows the player to lock the resourcepack of a player
-        default: op
-    dynamicresourcepacks.list.selectable:
-        description: Allows the player to list all selectable resourcepacks
-        default: true
-    dynamicresourcepacks.list.usable:
+  dynamicresourcepacks.*:
+    description: Gives access to all DynamicResourcepacks commands
+    children:
+      dynamicresourcepacks.usepack.*: true
+      dynamicresourcepacks.setpack.*: true
+      dynamicresourcepacks.list.all: true
+      dynamicresourcepacks.list.others: true
+      dynamicresourcepacks.view.all: true
+      dynamicresourcepacks.create: true
+      dynamicresourcepacks.rename: true
+      dynamicresourcepacks.edit: true
+      dynamicresourcepacks.remove: true
+      dynamicresourcepacks.unlock: true
+  dynamicresourcepacks.usepack:
+    description: Allows the player to use packs with the general permission
+    default: true
+  dynamicresourcepacks.usepack.*:
+    description: Allows the player to use any resourcepack
+    default: op
+    children:
+      dynamicresourcepacks.usepack: true
+  dynamicresourcepacks.setpack.*:
+    description: Allows the player to set and lock the resourcepack of players freely
+    children:
+      dynamicresourcepacks.setpack: true
+      dynamicresourcepacks.setpack.others: true
+      dynamicresourcepacks.setpack.lock: true
+  dynamicresourcepacks.setpack:
+    description: Allows the player to select a resourcepack manually
+    default: true
+  dynamicresourcepacks.setpack.others:
+    description: Allows the player to set the resourcepack of other players manually
+    default: op
+  dynamicresourcepacks.setpack.lock:
+    description: Allows the player to lock the resourcepack of a player
+    default: op
+  dynamicresourcepacks.list.all:
+    description: Allows the player to list all resourcepacks, even the not usable
+    default: op
+    children:
+      dynamicresourcepacks.list.usable:
         description: Allows the player to list all usable (but not neccessarily selectable) resourcepacks
         default: op
-            dynamicresourcepacks.list.selectable: true
-    dynamicresourcepacks.list.all:
-        description: Allows the player to list all resourcepacks, even the not usable
-        default: op
         children:
-            dynamicresourcepacks.list.usable: true
-    dynamicresourcepacks.list.others:
-        description: Allows the player to see the resourcepack list from the view of another player
-        default: op
-    dynamicresourcepacks.view.selected:
-        description: Allows the player to show the name of the currently selected resourcepack
-        default: true
-    dynamicresourcepacks.view.selectable:
-        description: Allows the player to show the info of all selectable resourcepacks
-        default: true
-        children:
-            dynamicresourcepacks.view.selected: true
-    dynamicresourcepacks.view.usable:
+          dynamicresourcepacks.list.selectable:
+            description: Allows the player to list all selectable resourcepacks
+            default: true
+  dynamicresourcepacks.list.others:
+    description: Allows the player to see the resourcepack list from the view of another player
+    default: op
+  dynamicresourcepacks.view.all:
+    description: Allows the player to show the info of all resourcepacks
+    default: op
+    children:
+      dynamicresourcepacks.view.usable:
         description: Allows the player to show the info of all usable resourcepacks
         default: op
         children:
-            dynamicresourcepacks.view.selectable: true
-    dynamicresourcepacks.view.all:
-        description: Allows the player to show the info of all resourcepacks
-        default: op
-        children:
-            dynamicresourcepacks.view.usable: true
-    dynamicresourcepacks.view.full:
-        description: Allows the player to show the name of the currently selected pack
-        default: op
-    dynamicresourcepacks.create:
-        description: Allows the player to create a new resourcepack
-        default: op
-    dynamicresourcepacks.rename:
-        description: Allows the player to rename a resourcepack
-        default: op
-    dynamicresourcepacks.edit:
-        description: Allows the player to edit a resourcepack (URL, permissions and display name)
-        default: op
-    dynamicresourcepacks.remove:
-        description: Allows the player to remove a resourcepack
-        default: op
-    dynamicresourcepacks.unlock:
-        description: Allows the player to unlock the resourcepack of a player
-        default: op
+          dynamicresourcepacks.view.selectable:
+            description: Allows the player to show the info of all selectable resourcepacks
+            default: true
+            children:
+              dynamicresourcepacks.view.selected:
+                description: Allows the player to show the name of the currently selected resourcepack
+                default: true
+  dynamicresourcepacks.view.full:
+    description: Allows the player to show the name of the currently selected pack
+    default: op
+  dynamicresourcepacks.create:
+    description: Allows the player to create a new resourcepack
+    default: op
+  dynamicresourcepacks.rename:
+    description: Allows the player to rename a resourcepack
+    default: op
+  dynamicresourcepacks.edit:
+    description: Allows the player to edit a resourcepack (URL, permissions and display name)
+    default: op
+  dynamicresourcepacks.remove:
+    description: Allows the player to remove a resourcepack
+    default: op
+  dynamicresourcepacks.unlock:
+    description: Allows the player to unlock the resourcepack of a player
+    default: op
