@@ -597,7 +597,7 @@ public class PlayerManager {
 		else {
 			Resourcepack resourcepack = this.getResourcepackForInputString(sender, pack);
 			if(resourcepack != null)
-				this.setResourcepack(sender, player, resourcepack);
+				this.setResourcepack(sender, player, resourcepack, locked);
 		}
 		
 		return true;
@@ -654,11 +654,11 @@ public class PlayerManager {
 			} else
 				return;
 		} else if(lock) {
-			this.packManager.setLocked(player, false);
-			if(useSelf) sender.sendMessage(ChatColor.GREEN      + "Your resourcepack has been unlocked");
+			this.packManager.setLocked(player, true);
+			if(useSelf) sender.sendMessage(ChatColor.GREEN      + "Your resourcepack has been locked");
 			else        sender.sendMessage(ChatColor.GREEN      + "The resourcepack of " +
 			                               ChatColor.DARK_GREEN + player.getName() +
-			                               ChatColor.GREEN      + " has been unlocked");
+			                               ChatColor.GREEN      + " has been locked");
 		}
 		
 		this.packManager.setResourcepack(player, pack);
