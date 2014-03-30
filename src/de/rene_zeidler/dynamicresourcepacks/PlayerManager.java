@@ -90,7 +90,8 @@ public class PlayerManager {
 				this.printHelp(sender, label, null, newArgs);
 				
 			} else if("view".equalsIgnoreCase(command) ||
-					  "show".equalsIgnoreCase(command)) {
+					  "show".equalsIgnoreCase(command) ||
+					  "info".equalsIgnoreCase(command)) {
 				this.handleViewCommand(sender, label, newArgs);
 				
 			} else if("list".equalsIgnoreCase(command)) {
@@ -352,7 +353,7 @@ public class PlayerManager {
 			if(sender instanceof Player)
 				player = (Player)sender;
 			else {
-				sender.sendMessage(ChatColor.RED + "Usage: /" + label + " unlock <player>");
+				sender.sendMessage(ChatColor.RED + "Usage: /" + label + " " + (status ? "" : "un") + "lock <player>");
 				return;
 			}
 		} else {
@@ -366,7 +367,7 @@ public class PlayerManager {
 		if(this.packManager.getLocked(player) == status)
 			sender.sendMessage(ChatColor.GOLD + "The resourcepack of " + player.getName() + " is already " + (status ? "locked" : "unlocked"));
 		else {
-			this.packManager.setLocked(player, false);
+			this.packManager.setLocked(player, status);
 			sender.sendMessage(ChatColor.GREEN + (status ? "Locked" : "Unlocked") + " the resourcepack of " + player.getName());
 		}
 	}
@@ -379,7 +380,7 @@ public class PlayerManager {
 		else if(player.hasPermission("dynamicresourcepacks.list.usable"))
 			visiblePacks = this.packManager.getUsableResourcepacks(player);
 		else if(player.hasPermission("dynamicresourcepacks.list.selectable"))
-			visiblePacks = this.packManager.getUsableResourcepacks(player);
+			visiblePacks = this.packManager.getSelectableResourcepacks(player);
 		else {
 			if(sender == player)
 				sender.sendMessage(ChatColor.RED + "You don't have permission!");

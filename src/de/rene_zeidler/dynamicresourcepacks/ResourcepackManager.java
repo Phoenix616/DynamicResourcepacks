@@ -26,7 +26,7 @@ public class ResourcepackManager {
 	private DynamicResourcepacks plugin;
 	private Configuration config;
 	
-	private static final Resourcepack EMPTY_PACK = new Resourcepack("empty", "Empty (no pack selected)", "", "Default", Permission.NONE, Permission.NONE);
+	private static final Resourcepack EMPTY_PACK = new Resourcepack("empty", "Empty (no pack selected)", "", "Default", Permission.NONE, Permission.GENERAL);
 	
 	private HashMap<String, Resourcepack> packs;
 	private HashMap<Player, String> currentPacks;
@@ -66,7 +66,7 @@ public class ResourcepackManager {
 	 * @param pack The pack to send to the player
 	 */
 	protected void sendResourcepack(Player player, Resourcepack pack) {
-		if(player != null && pack != null && !pack.getURL().isEmpty()) {
+		if(player != null && pack != null && pack.getURL() != null && !pack.getURL().isEmpty()) {
 			player.setResourcePack(pack.getURL());
 			this.plugin.getLogger().info("Sending resourcepack " + pack.getName() + " (" + pack.getURL() + ") to player " +  player.getName());;
 		}
@@ -437,7 +437,7 @@ public class ResourcepackManager {
 	public boolean getLocked(Player player) {
 		List<MetadataValue> values = player.getMetadata("resourcepackLocked");
 		for (MetadataValue value : values)
-			if (value.getOwningPlugin() instanceof DynamicResourcepacks)
+			if (value.getOwningPlugin().getDescription().getName().equals(this.plugin.getDescription().getName()))
 				return value.asBoolean();
 		return false;
 	}
