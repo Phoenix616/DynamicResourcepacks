@@ -1,5 +1,6 @@
 package de.rene_zeidler.dynamicresourcepacks;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -76,6 +77,51 @@ public class PlayerManager {
 		}
 	}
 	
+	public List<String> onTabCompleteDynamicresourcepacks(CommandSender sender, String label, String[] args) {
+		if(args.length == 1) {
+			//TODO
+		}
+		
+		return null;
+	}
+	
+	public List<String> onTabCompleteSetresourcepack(CommandSender sender, String label, String[] args) {
+		if(args.length == 2 && this.packManager.resourcepackExists(args[0])
+		|| args.length == 3 && this.packManager.resourcepackExists(args[1])) {
+			return completeValues(args[args.length - 1], "true", "false");
+		} else if(args.length == 1 || args.length == 2)
+			return completeResourcepack(sender, args[args.length - 1]);
+		else
+			return new ArrayList<String>();
+	}
+	
+	public ArrayList<String> completeValues(String arg, String... strings) {
+		ArrayList<String> completions = new ArrayList<String>();
+		for(String s : strings)
+			if(s.startsWith(arg))
+				completions.add(s);
+		return completions;
+	}
+	
+	public ArrayList<String> completeResourcepack(CommandSender sender, String arg) {
+		List<Resourcepack> visiblePacks;
+
+		if(sender.hasPermission("dynamicresourcepacks.list.all"))
+			visiblePacks = this.packManager.getResourcepacks();
+		else if(sender.hasPermission("dynamicresourcepacks.list.usable"))
+			visiblePacks = this.packManager.getUsableResourcepacks(sender);
+		else if(sender.hasPermission("dynamicresourcepacks.list.selectable"))
+			visiblePacks = this.packManager.getSelectableResourcepacks(sender);
+		else
+			return null;
+		
+		ArrayList<String> completions = new ArrayList<String>();
+		for(Resourcepack pack : visiblePacks)
+			if(pack.getName().startsWith(arg))
+				completions.add(pack.getName());
+		return completions;
+	}
+
 	public boolean handleDynamicResourcepacksCommand(CommandSender sender, String label, String[] args) {
 		if(args.length == 0) {
 			this.printHelp(sender, label, null, args);
@@ -151,8 +197,14 @@ public class PlayerManager {
 		}
 		
 		Resourcepack pack = this.getResourcepackForInputString(sender, args[0]);
-		if(pack != null)
-			this.printPackInfo(sender, pack);
+		if(pack != null) {
+			if(sender.hasPermission("dynamicresourcepacks.view.all")
+			|| sender.hasPermission("dynamicresourcepacks.view.usable") && pack.checkGeneralPermission(sender)
+			|| sender.hasPermission("dynamicresourcepacks.view.selectable") && pack.checkUseSelfPermission(sender))
+				this.printPackInfo(sender, pack);
+			else
+				sender.sendMessage(ChatColor.RED + "You don't have permission!");
+		}
 	}
 	
 	public void handleListCommand(CommandSender sender, String label, String[] args) {
@@ -691,7 +743,7 @@ public class PlayerManager {
 		}
 		
 		Player p = (Player)sender;
-		if(sender.hasPermission("dynamicresourcepacks.view"))
+		if(sender.hasPermission("dynamicresourcepacks.view.selected"))
 			if(this.packManager.hasResourcepack(p)) {
 				sender.sendMessage(ChatColor.GOLD + "" + ChatColor.ITALIC + "Currently selected resourcepack:");
 				this.printPackInfo(sender, this.packManager.getResourcepack(p));

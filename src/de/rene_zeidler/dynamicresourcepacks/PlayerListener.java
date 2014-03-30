@@ -42,7 +42,11 @@ public class PlayerListener implements Listener, CommandExecutor, TabCompleter {
 
 	@Override
 	public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-		// TODO 
+		if(command.getName().equalsIgnoreCase("dynamicresourcepacks"))
+			return this.playerManager.onTabCompleteDynamicresourcepacks(sender, alias, args);
+		else if(command.getName().equalsIgnoreCase("setresourcepack"))
+			return this.playerManager.onTabCompleteSetresourcepack(sender, alias, args);
+		
 		return null;
 	}
 }
