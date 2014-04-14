@@ -20,10 +20,8 @@ public class DynamicResourcepacks extends JavaPlugin {
 		this.playerListener = new PlayerListener(this);
 		
 		this.getServer().getPluginManager().registerEvents(this.playerListener, this);
-		this.getCommand("dynamicresourcepacks").setExecutor    (this.playerListener);
-		this.getCommand("dynamicresourcepacks").setTabCompleter(this.playerListener);
-		this.getCommand("setresourcepack")     .setExecutor    (this.playerListener);
-		this.getCommand("setresourcepack")     .setTabCompleter(this.playerListener);
+		this.getCommand("dynamicresourcepacks").setExecutor(this.playerListener);
+		this.getCommand("setresourcepack")     .setExecutor(this.playerListener);
 		
 		this.packManager.loadFromConfig();
 	}

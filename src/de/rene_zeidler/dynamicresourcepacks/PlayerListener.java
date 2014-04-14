@@ -3,7 +3,6 @@ package de.rene_zeidler.dynamicresourcepacks;
 import java.util.List;
 
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.event.EventHandler;
@@ -15,7 +14,7 @@ import de.rene_zeidler.dynamicresourcepacks.command.CommandDynamicResourcepacks;
 import de.rene_zeidler.dynamicresourcepacks.command.CommandSetresourcepack;
 import de.rene_zeidler.dynamicresourcepacks.command.DynamicResourcepacksCommand;
 
-public class PlayerListener implements Listener, CommandExecutor, TabExecutor {
+public class PlayerListener implements Listener, TabExecutor {
 	private DynamicResourcepacks plugin;
 	private ResourcepackManager packManager;
 	
