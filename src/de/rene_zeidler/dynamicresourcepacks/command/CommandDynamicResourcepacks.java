@@ -1,8 +1,10 @@
 package de.rene_zeidler.dynamicresourcepacks.command;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.command.CommandSender;
+import org.bukkit.util.StringUtil;
 
 import de.rene_zeidler.dynamicresourcepacks.DynamicResourcepacks;
 
@@ -22,11 +24,37 @@ public class CommandDynamicResourcepacks extends DynamicResourcepacksCommand {
 	@Override
 	public List<String> tabComplete(CommandSender sender) {
 		if(this.args.length == 1) {
-			//TODO: tab complete
-			return null;
+			if("set".equals(this.args[0]) || "edit".equals(this.args[0])) {
+				List<String> completions =
+						new CommandEdit(this.plugin,
+						this.label + " " + this.args[0],
+						this.dynamicResourcepacksAlias, this.setresourcepackAlias,
+						new String[] {"", ""}).tabComplete(sender);
+				this.prefixCompletions(completions, this.args[0]);
+				return completions;
+			}
+			return this.getCommands(sender, this.args[0]);
 		} else {
 			return this.getCommand().tabComplete(sender);
 		}
+	}
+	
+	public List<String> getCommands(CommandSender sender, String arg) {
+		List<String> completions = new ArrayList<String>();
+		
+		this.addCommandCompletions(completions, arg, "help");
+		this.addCommandCompletions(completions, arg, "version");
+		if(CommandView.  canSee(sender)) this.addCommandCompletions(completions, arg, "view", "show", "info");
+		if(CommandList.  canSee(sender)) this.addCommandCompletions(completions, arg, "list");
+		if(CommandCreate.canSee(sender)) this.addCommandCompletions(completions, arg, "create", "add");
+		if(CommandEdit.  canSee(sender)) this.addCommandCompletions(completions, arg, "edit", "set");
+		if(CommandRename.canSee(sender)) this.addCommandCompletions(completions, arg, "rename");
+		if(CommandRemove.canSee(sender)) this.addCommandCompletions(completions, arg, "remove", "delete");
+		if(CommandLock.  canSee(sender)) this.addCommandCompletions(completions, arg, "lock");
+		if(CommandUnlock.canSee(sender)) this.addCommandCompletions(completions, arg, "unlock");
+		if(CommandSetresourcepack.canSee(sender)) this.addCommandCompletions(completions, arg, null, "use", "switch");
+		
+		return completions;
 	}
 	
 	public DynamicResourcepacksCommand getCommand() {
@@ -59,9 +87,9 @@ public class CommandDynamicResourcepacks extends DynamicResourcepacksCommand {
 					  "set" .equalsIgnoreCase(command)) {
 				return new CommandEdit(this.plugin, newLabel, this.dynamicResourcepacksAlias, this.setresourcepackAlias, newArgs);
 			
-			} else if(command.startsWith("set" ) ||
-					  command.startsWith("edit")) {
-				String property = command.substring(command.startsWith("set") ? 3 : 4);
+			} else if(StringUtil.startsWithIgnoreCase(command, "set") ||
+					  StringUtil.startsWithIgnoreCase(command, "edit")) {
+				String property = command.substring(StringUtil.startsWithIgnoreCase(command, "set") ? 3 : 4);
 				if(this.args.length > 1) {
 					this.args[0] = this.args[1];
 					this.args[1] = property;

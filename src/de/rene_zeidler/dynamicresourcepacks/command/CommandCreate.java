@@ -1,9 +1,11 @@
 package de.rene_zeidler.dynamicresourcepacks.command;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.permissions.Permissible;
 
 import de.rene_zeidler.dynamicresourcepacks.DynamicResourcepacks;
 import de.rene_zeidler.dynamicresourcepacks.Resourcepack;
@@ -65,7 +67,20 @@ public class CommandCreate extends DynamicResourcepacksCommand {
 
 	@Override
 	public List<String> tabComplete(CommandSender sender) {
-		//TODO: tab complete
-		return null;
+		if(this.args.length == 1)
+			sender.sendMessage(ChatColor.GOLD + "Please enter the unique name (id) of the new resourcepack");
+		else if(this.args.length == 2)
+			return this.completeURL(sender, this.args[1]);
+		else if(this.args.length == 3)
+			sender.sendMessage(ChatColor.GOLD + "Please enter the display name (must not contain any spaces)");
+		else if(this.args.length == 4)
+			return this.completePermission(this.args[3]);
+		else if(this.args.length == 5)
+			return this.completePermission(this.args[4]);
+		return new ArrayList<String>();
+	}
+
+	public static boolean canSee(Permissible permissible) {
+		return permissible.hasPermission("dynamicresourcepacks.create");
 	}
 }

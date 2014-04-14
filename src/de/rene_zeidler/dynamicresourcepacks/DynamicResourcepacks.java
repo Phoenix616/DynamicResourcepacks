@@ -6,7 +6,7 @@ import org.bukkit.plugin.java.JavaPlugin;
  * Plugin to set the server resourcepack for players dynamically.
  * 
  * @author René Zeidler
- * @version 0.1.0
+ * @version 0.1.1
  */
 public class DynamicResourcepacks extends JavaPlugin {
 	private ResourcepackManager packManager;

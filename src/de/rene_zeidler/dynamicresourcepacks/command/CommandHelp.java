@@ -1,5 +1,6 @@
 package de.rene_zeidler.dynamicresourcepacks.command;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.ChatColor;
@@ -89,8 +90,10 @@ public class CommandHelp extends DynamicResourcepacksCommand {
 
 	@Override
 	public List<String> tabComplete(CommandSender sender) {
-		//TODO: tab complete
-		return null;
+		if(this.args.length == 1)
+			return this.completeValues(this.args[0], "aliases");
+		else
+			return new ArrayList<String>();
 	}
 	
 	public void appendAliases(StringBuilder stringBuilder, String mainCommand, String mainAlias, String... aliases) {

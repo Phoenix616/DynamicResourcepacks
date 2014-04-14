@@ -1,5 +1,6 @@
 package de.rene_zeidler.dynamicresourcepacks.command;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -36,8 +37,10 @@ public class CommandList extends DynamicResourcepacksCommand {
 
 	@Override
 	public List<String> tabComplete(CommandSender sender) {
-		//TODO: tab complete
-		return null;
+		if(this.args.length == 1 && sender.hasPermission("dynamicresourcepacks.list.others"))
+			return null; //Complete names
+		else
+			return new ArrayList<String>();
 	}
 	
 	public static boolean canSee(Permissible permissible) {

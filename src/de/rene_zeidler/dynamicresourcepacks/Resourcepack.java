@@ -43,7 +43,7 @@ public class Resourcepack implements Comparable<Resourcepack> {
 	}
 	
 	public Resourcepack(String name, String displayName, String url, String addedBy, Permission generalPermission, Permission useSelfPermission) {
-		this.name = name;
+		this.name = name.toLowerCase();
 		this.displayName = displayName;
 		this.url = url;
 		this.addedBy = addedBy;
@@ -56,7 +56,7 @@ public class Resourcepack implements Comparable<Resourcepack> {
 	}
 
 	protected void setName(String name) {
-		this.name = name;
+		this.name = name.toLowerCase();
 	}
 
 	public String getDisplayName() {

@@ -1,5 +1,6 @@
 package de.rene_zeidler.dynamicresourcepacks.command;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.ChatColor;
@@ -24,7 +25,7 @@ public class CommandEdit extends DynamicResourcepacksCommand {
 		boolean canRename = sender.hasPermission("dynamicresourcepacks.rename");
 		boolean canEdit   = sender.hasPermission("dynamicresourcepacks.edit");
 		
-		if(this.args.length != 3) {
+		if(this.args.length != 3 || (this.args.length > 3 && "displayName".equalsIgnoreCase(this.args[1]))) {
 			if(canEdit)
 				sender.sendMessage(ChatColor.RED + "Usage: /" + this.label + " <name> <property> <value>");
 			else if(canRename)
@@ -54,7 +55,10 @@ public class CommandEdit extends DynamicResourcepacksCommand {
 				}
 				
 			} else if("displayName".equalsIgnoreCase(this.args[1])) {
-				pack.setDisplayName(this.args[2]);
+				StringBuilder displayName = new StringBuilder();
+				for(int i = 2; i < this.args.length; i++)
+					displayName.append(this.args[i]);
+				pack.setDisplayName(displayName.toString());
 				sender.sendMessage(ChatColor.GREEN      + "Successfully set the display name of " +
 				                   ChatColor.DARK_GREEN + pack.getName() +
 				                   ChatColor.GREEN      + " to " +
@@ -102,8 +106,27 @@ public class CommandEdit extends DynamicResourcepacksCommand {
 
 	@Override
 	public List<String> tabComplete(CommandSender sender) {
-		//TODO: tab complete
-		return null;
+		if(this.args.length == 1) {
+			return this.completeResourcepack(sender, this.args[0]);
+		} else if(this.args.length == 2) {
+			List<String> completions = new ArrayList<String>();
+			this.addCompletions(completions, this.args[1], "name", "url", "displayName");
+			this.addCommandCompletions(completions, this.args[1], "generalPermission", "permission");
+			this.addCommandCompletions(completions, this.args[1], "useSelfPermission", "selfPermission");
+			return completions;
+		} else if(this.args.length > 2) {
+			if("url".equalsIgnoreCase(this.args[1]))
+				return this.completeURL(sender, this.args[2]);
+			else if("displayName".equalsIgnoreCase(this.args[1]))
+				sender.sendMessage(ChatColor.GOLD + "Please enter the new display name (can contain spaces)");
+			else if("generalPermission".equalsIgnoreCase(this.args[1]) ||
+					"permission"       .equalsIgnoreCase(this.args[1]) ||
+					"useSelfPermission".equalsIgnoreCase(this.args[1]) ||
+					"selfPermission"   .equalsIgnoreCase(this.args[1]))
+				return this.completePermission(this.args[2]);
+		}
+		
+		return new ArrayList<String>();
 	}
 
 	public static boolean canSee(Permissible permissible) {

@@ -1,5 +1,6 @@
 package de.rene_zeidler.dynamicresourcepacks.command;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.ChatColor;
@@ -42,8 +43,10 @@ public class CommandRemove extends DynamicResourcepacksCommand {
 
 	@Override
 	public List<String> tabComplete(CommandSender sender) {
-		//TODO: tab complete
-		return null;
+		if(this.args.length == 1)
+			return this.completeResourcepack(sender, this.args[0]);
+		else
+			return new ArrayList<String>();
 	}
 	
 	public static boolean canSee(Permissible permissible) {

@@ -6,6 +6,7 @@ import java.util.List;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.util.StringUtil;
 
 import de.rene_zeidler.dynamicresourcepacks.DynamicResourcepacks;
 import de.rene_zeidler.dynamicresourcepacks.Resourcepack;
@@ -127,9 +128,7 @@ public abstract class DynamicResourcepacksCommand {
 	
 	public List<String> completeValues(String arg, String... strings) {
 		List<String> completions = new ArrayList<String>();
-		for(String s : strings)
-			if(s.startsWith(arg))
-				completions.add(s);
+		this.addCompletions(completions, arg, strings);
 		return completions;
 	}
 	
@@ -150,5 +149,38 @@ public abstract class DynamicResourcepacksCommand {
 			if(pack.getName().startsWith(arg))
 				completions.add(pack.getName());
 		return completions;
+	}
+	
+	public List<String> completePermission(String arg) {
+		List<String> completions = new ArrayList<String>();
+		for(Permission perm : Permission.values())
+			if(StringUtil.startsWithIgnoreCase(perm.toString(), arg))
+				completions.add(perm.toString());
+		return completions;
+	}
+	
+	public List<String> completeURL(CommandSender sender, String arg) {
+		return this.completeValues(arg, "http://", "https://");
+		//TODO: completion based on previously used URLs?
+		//when player has dynamicresourcepacks.view.full
+	}
+	
+	public void addCompletions(List<String> completions, String arg, String... strings) {
+		for(String s : strings)
+			if(StringUtil.startsWithIgnoreCase(s, arg))
+				completions.add(s);
+	}
+	
+	public void addCommandCompletions(List<String> completions, String arg, String command, String... aliases) {
+		if(command != null && StringUtil.startsWithIgnoreCase(command, arg))
+			completions.add(command);
+		if(arg.length() > 0)
+			this.addCompletions(completions, arg, aliases);
+	}
+	
+	public void prefixCompletions(List<String> completions, String prefix) {
+		if(completions == null || completions.size() == 0) return;
+		for(int i = 0; i < completions.size(); i++)
+			completions.set(i, prefix + completions.get(i));
 	}
 }
