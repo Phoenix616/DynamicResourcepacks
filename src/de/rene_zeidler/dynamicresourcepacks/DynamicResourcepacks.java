@@ -10,7 +10,6 @@ import org.bukkit.plugin.java.JavaPlugin;
  */
 public class DynamicResourcepacks extends JavaPlugin {
 	private ResourcepackManager packManager;
-	private PlayerManager playerManager;
 	private PlayerListener playerListener;
 	
 	@Override
@@ -18,7 +17,6 @@ public class DynamicResourcepacks extends JavaPlugin {
 		this.saveDefaultConfig();
 		
 		this.packManager = new ResourcepackManager(this);
-		this.playerManager = new PlayerManager(this, this.packManager);
 		this.playerListener = new PlayerListener(this);
 		
 		this.getServer().getPluginManager().registerEvents(this.playerListener, this);
@@ -35,11 +33,10 @@ public class DynamicResourcepacks extends JavaPlugin {
 		this.packManager.saveConfig();
 		this.saveConfig();
 		
-		this.playerManager = null;
 		this.packManager = null;
 	}
 	
-	public PlayerManager getPlayerManager() {
-		return this.playerManager;
+	public ResourcepackManager getResourcepackManager() {
+		return this.packManager;
 	}
 }
