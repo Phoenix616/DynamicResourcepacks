@@ -18,6 +18,7 @@ public class CommandLock extends DynamicResourcepacksCommand {
 		super(plugin, label, dynamicResourcepacksAlias, setresourcepackAlias, args);
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public boolean run(CommandSender sender) {
 		if(!sender.hasPermission("dynamicresourcepacks.setpack.lock")) {

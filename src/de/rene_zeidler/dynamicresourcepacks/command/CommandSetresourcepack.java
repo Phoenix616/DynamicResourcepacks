@@ -37,6 +37,7 @@ public class CommandSetresourcepack extends DynamicResourcepacksCommand {
 		return true;
 	}
 	
+	@SuppressWarnings("deprecation")
 	@Override
 	public List<String> tabComplete(CommandSender sender) {
 		if(this.args.length == 1) {
@@ -75,6 +76,7 @@ public class CommandSetresourcepack extends DynamicResourcepacksCommand {
 	 * @param args The arguments
 	 * @return True if the command successfully set a resourcepack
 	 */
+	@SuppressWarnings("deprecation")
 	public boolean parseArgs(CommandSender sender) {
 		if(this.args.length < 1) {
 			this.printUsage(sender);

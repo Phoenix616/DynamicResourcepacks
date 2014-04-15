@@ -25,6 +25,7 @@ public class CommandList extends DynamicResourcepacksCommand {
 		if(this.args.length == 0 || !sender.hasPermission("dynamicresourcepacks.list.others"))
 			this.printResourcepackList(sender, sender);
 		else {
+			@SuppressWarnings("deprecation")
 			Player player = sender.getServer().getPlayer(this.args[0]);
 			if(player != null)
 				this.printResourcepackList(sender, player);

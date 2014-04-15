@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.Configuration;
@@ -353,7 +354,8 @@ public class ResourcepackManager {
 	public void saveConfigPlayers() {
 		ConfigurationSection section = this.config.createSection("players");
 		for(Player player : this.currentPacks.keySet()) {
-			ConfigurationSection p = section.createSection(player.getName());
+			ConfigurationSection p = section.createSection(player.getUniqueId().toString());
+			p.set("name", player.getName());
 			p.set("pack", this.currentPacks.get(player));
 			p.set("locked", this.getLocked(player));
 		}
@@ -365,7 +367,8 @@ public class ResourcepackManager {
 	 */
 	public void saveConfigForPlayer(Player player) {
 		ConfigurationSection section = this.config.createSection("players");
-		ConfigurationSection p = section.createSection(player.getName());
+		ConfigurationSection p = section.createSection(player.getUniqueId().toString());
+		p.set("name", player.getName());
 		p.set("pack", this.currentPacks.get(player));
 		p.set("locked", this.getLocked(player));
 	}
@@ -396,12 +399,24 @@ public class ResourcepackManager {
 		
 		section = this.config.getConfigurationSection("players");
 		if(section != null) {
-			for(String name : section.getKeys(false)) {
-				ConfigurationSection p = section.getConfigurationSection(name);
-				Player player = Bukkit.getPlayerExact(name);
-				if(player != null) {
-					this.setResourcepack(player, this.getResourcepackForName(p.getString("pack")));
-					this.setLocked(player, p.getBoolean("locked"));
+			for(String uuid : section.getKeys(false)) {
+				ConfigurationSection p = section.getConfigurationSection(uuid);
+				try {
+					Player player = Bukkit.getPlayer(UUID.fromString(uuid));
+					if(player != null) {
+						this.setResourcepack(player, this.getResourcepackForName(p.getString("pack")));
+						this.setLocked(player, p.getBoolean("locked"));
+					}
+				} catch(IllegalArgumentException ex) {
+					//Convert previously stored playername if the player is online
+					@SuppressWarnings("deprecation")
+					Player player = Bukkit.getPlayer(uuid);
+					if(player != null) {
+						section.set(uuid, null);
+						this.setResourcepack(player, this.getResourcepackForName(p.getString("pack")));
+						this.setLocked(player, p.getBoolean("locked"));
+						this.saveConfigForPlayer(player);
+					}
 				}
 			}
 		}
@@ -413,7 +428,7 @@ public class ResourcepackManager {
 	 */
 	public void loadPlayerFromConfig(Player player) {
 		if(player == null) return;
-		ConfigurationSection p = this.config.getConfigurationSection("players." + player.getName());
+		ConfigurationSection p = this.config.getConfigurationSection("players." + player.getUniqueId());
 		if(p != null) {
 			this.setResourcepack(player, this.getResourcepackForName(p.getString("pack")));
 			this.setLocked(player, p.getBoolean("locked"));
