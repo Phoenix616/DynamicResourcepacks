@@ -30,6 +30,7 @@ public abstract class DynamicResourcepacksCommand {
 		this.setresourcepackAlias = (setresourcepackAlias == null ? "setresourcepack" : setresourcepackAlias);
 		this.args = args;
 		this.plugin = plugin;
+		this.packManager = this.plugin.getResourcepackManager();
 	}
 
 	public abstract boolean run(CommandSender sender);
