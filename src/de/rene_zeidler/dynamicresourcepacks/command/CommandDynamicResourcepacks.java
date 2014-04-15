@@ -44,14 +44,15 @@ public class CommandDynamicResourcepacks extends DynamicResourcepacksCommand {
 		
 		this.addCommandCompletions(completions, arg, "help");
 		this.addCommandCompletions(completions, arg, "version");
-		if(CommandView.  canSee(sender)) this.addCommandCompletions(completions, arg, "view", "show", "info");
-		if(CommandList.  canSee(sender)) this.addCommandCompletions(completions, arg, "list");
-		if(CommandCreate.canSee(sender)) this.addCommandCompletions(completions, arg, "create", "add");
-		if(CommandEdit.  canSee(sender)) this.addCommandCompletions(completions, arg, "edit", "set");
-		if(CommandRename.canSee(sender)) this.addCommandCompletions(completions, arg, "rename");
-		if(CommandRemove.canSee(sender)) this.addCommandCompletions(completions, arg, "remove", "delete");
-		if(CommandLock.  canSee(sender)) this.addCommandCompletions(completions, arg, "lock");
-		if(CommandUnlock.canSee(sender)) this.addCommandCompletions(completions, arg, "unlock");
+		if(CommandView.      canSee(sender)) this.addCommandCompletions(completions, arg, "view", "show", "info");
+		if(CommandList.      canSee(sender)) this.addCommandCompletions(completions, arg, "list");
+		if(CommandPlayerinfo.canSee(sender)) this.addCommandCompletions(completions, arg, "playerinfo");
+		if(CommandCreate.    canSee(sender)) this.addCommandCompletions(completions, arg, "create", "add");
+		if(CommandEdit.      canSee(sender)) this.addCommandCompletions(completions, arg, "edit", "set");
+		if(CommandRename.    canSee(sender)) this.addCommandCompletions(completions, arg, "rename");
+		if(CommandRemove.    canSee(sender)) this.addCommandCompletions(completions, arg, "remove", "delete");
+		if(CommandLock.      canSee(sender)) this.addCommandCompletions(completions, arg, "lock");
+		if(CommandUnlock.    canSee(sender)) this.addCommandCompletions(completions, arg, "unlock");
 		if(CommandSetresourcepack.canSee(sender)) this.addCommandCompletions(completions, arg, null, "use", "switch");
 		
 		return completions;
@@ -78,6 +79,10 @@ public class CommandDynamicResourcepacks extends DynamicResourcepacksCommand {
 				
 			} else if("list".equalsIgnoreCase(command)) {
 				return new CommandList(this.plugin, newLabel, this.dynamicResourcepacksAlias, this.setresourcepackAlias, newArgs);
+				
+			} else if("playerinfo".equalsIgnoreCase(command) ||
+					  "player"    .equalsIgnoreCase(command)) {
+				return new CommandPlayerinfo(this.plugin, newLabel, this.dynamicResourcepacksAlias, this.setresourcepackAlias, newArgs);
 				
 			} else if("create".equalsIgnoreCase(command) ||
 					  "add"   .equalsIgnoreCase(command)) {

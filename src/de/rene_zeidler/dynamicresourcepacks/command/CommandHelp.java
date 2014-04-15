@@ -18,7 +18,6 @@ public class CommandHelp extends DynamicResourcepacksCommand {
 
 	@Override
 	public boolean run(CommandSender sender) {
-		//TODO: canSee
 		StringBuilder msg = new StringBuilder();
 		
 		boolean foundTopic = false;
@@ -37,12 +36,9 @@ public class CommandHelp extends DynamicResourcepacksCommand {
 				
 				
 				this.appendAliases(msg, this.dynamicResourcepacksAlias, "help", "?");
-				if(sender.hasPermission("dynamicresourcepacks.view.selected"))
-					this.appendAliases(msg, this.dynamicResourcepacksAlias, "view", "show", "info");
-				if(sender.hasPermission("dynamicresourcepacks.created"))
-					this.appendAliases(msg, this.dynamicResourcepacksAlias, "create", "add");
-				if(sender.hasPermission("dynamicresourcepacks.remove"))
-					this.appendAliases(msg, this.dynamicResourcepacksAlias, "remove", "delete");
+				if(CommandView.  canSee(sender)) this.appendAliases(msg, this.dynamicResourcepacksAlias, "view", "show", "info");
+				if(CommandCreate.canSee(sender)) this.appendAliases(msg, this.dynamicResourcepacksAlias, "create", "add");
+				if(CommandRemove.canSee(sender)) this.appendAliases(msg, this.dynamicResourcepacksAlias, "remove", "delete");
 				this.appendAliases(msg, this.dynamicResourcepacksAlias, "version", "ver");
 				
 				msg.append(ChatColor.BLUE);
@@ -63,24 +59,32 @@ public class CommandHelp extends DynamicResourcepacksCommand {
 			this.appendHelpEntry(msg, this.dynamicResourcepacksAlias, "help",           "Shows a list of available commands");
 			this.appendHelpEntry(msg, this.dynamicResourcepacksAlias, "help aliases",   "Shows a list of available command aliases");
 			
-			this.appendHelpEntry(msg, this.dynamicResourcepacksAlias, "list",          "Lists all available resourcepacks",                      sender, "dynamicresourcepacks.list.selectable");
-			this.appendHelpEntry(msg, this.dynamicResourcepacksAlias, "list <player>", "Lists all for the given player available resourcepacks", sender, "dynamicresourcepacks.list.others");
-			this.appendHelpEntry(msg, this.dynamicResourcepacksAlias, "view",          "Shows which resourcepack you have currently selected",   sender, "dynamicresourcepacks.view.selected"  );
-			this.appendHelpEntry(msg, this.dynamicResourcepacksAlias, "view <pack>",   "Shows information on the given resourcepack",            sender, "dynamicresourcepacks.view.selectable");
+			if(CommandList.canSee(sender)) {
+				this.appendHelpEntry(msg, this.dynamicResourcepacksAlias, "list", "Lists all available resourcepacks");
+				if(sender.hasPermission("dynamicresourcepacks.list.others"))
+					this.appendHelpEntry(msg, this.dynamicResourcepacksAlias, "list <player>", "Lists all for the given player available resourcepacks");	
+			}
+			if(CommandView.canSee(sender)) {
+				this.appendHelpEntry(msg, this.dynamicResourcepacksAlias, "view", "Shows which resourcepack you have currently selected");
+				if(sender.hasPermission("dynamicresourcepacks.view.selectable"))
+					this.appendHelpEntry(msg, this.dynamicResourcepacksAlias, "view <pack>", "Shows information on the given resourcepack");
+			}
 			
-			this.appendHelpEntry(msg, this.dynamicResourcepacksAlias, "create <name> <url> [displayName] [generalPermission] [useSelfPermission]",
-					                                                              null, sender, "dynamicresourcepacks.create"      );
-			this.appendHelpEntry(msg, this.dynamicResourcepacksAlias, "rename <oldName> <newName>",    null, sender, "dynamicresourcepacks.rename"      );
-			this.appendHelpEntry(msg, this.dynamicResourcepacksAlias, "edit <name> <setting> <value>", null, sender, "dynamicresourcepacks.edit"        );
-			this.appendHelpEntry(msg, this.dynamicResourcepacksAlias, "remove <name>",                 null, sender, "dynamicresourcepacks.remove"      );
-			this.appendHelpEntry(msg, this.dynamicResourcepacksAlias, "lock <player>",                 null, sender, "dynamicresourcepacks.setpack.lock");
-			this.appendHelpEntry(msg, this.dynamicResourcepacksAlias, "unlock <player>",               null, sender, "dynamicresourcepacks.unlock"      );
+			if(CommandCreate.canSee(sender)) this.appendHelpEntry(msg, this.dynamicResourcepacksAlias, "create <name> <url> [displayName] [generalPermission] [useSelfPermission]");
+			if(CommandRename.canSee(sender)) this.appendHelpEntry(msg, this.dynamicResourcepacksAlias, "rename <oldName> <newName>");
+			if(CommandEdit.  canSee(sender)) this.appendHelpEntry(msg, this.dynamicResourcepacksAlias, "edit <name> <setting> <value>");
+			if(CommandRemove.canSee(sender)) this.appendHelpEntry(msg, this.dynamicResourcepacksAlias, "remove <name>");
+			if(CommandLock.  canSee(sender)) this.appendHelpEntry(msg, this.dynamicResourcepacksAlias, "lock <player>");
+			if(CommandUnlock.canSee(sender)) this.appendHelpEntry(msg, this.dynamicResourcepacksAlias, "unlock <player>");
 			
 			this.appendHelpEntry(msg, this.dynamicResourcepacksAlias, "version", "Show the version of this plugin");
 			
-			boolean canLock = sender.hasPermission("dynamicresourcepacks.setpack.lock");
-			this.appendHelpEntry(msg, this.setresourcepackAlias, "<pack>" + (canLock ? " [lock]" : ""), "Use the given resourcepack");
-			this.appendHelpEntry(msg, this.setresourcepackAlias, "<player> <pack>" + (canLock ? " [lock]" : ""), "Sets the resourcepack of a given player", sender, "dynamicresourcepacks.setpack.others");
+			if(CommandSetresourcepack.canSee(sender)) {
+				boolean canLock = sender.hasPermission("dynamicresourcepacks.setpack.lock");
+				this.appendHelpEntry(msg, this.setresourcepackAlias, "<pack>" + (canLock ? " [lock]" : ""), "Use the given resourcepack");
+				if(sender.hasPermission("dynamicresourcepacks.setpack.others"))
+					this.appendHelpEntry(msg, this.setresourcepackAlias, "<player> <pack>" + (canLock ? " [lock]" : ""), "Sets the resourcepack of a given player");
+			}
 		}
 	
 		sender.sendMessage(msg.toString());
@@ -114,25 +118,23 @@ public class CommandHelp extends DynamicResourcepacksCommand {
 		stringBuilder.append(alias);
 	}
 	
-	public void appendHelpEntry(StringBuilder stringBuilder, String mainCommand, String commandArgs, String description) {
-		this.appendHelpEntry(stringBuilder, mainCommand, commandArgs, description, null, null);
+	public void appendHelpEntry(StringBuilder stringBuilder, String mainCommand, String commandArgs) {
+		this.appendHelpEntry(stringBuilder, mainCommand, commandArgs, null);
 	}
 	
-	public void appendHelpEntry(StringBuilder stringBuilder, String mainCommand, String commandArgs, String description, CommandSender sender, String permission) {
-		if(permission == null || permission.isEmpty() || (sender != null && sender.hasPermission(permission))) {
-			stringBuilder.append(ChatColor.BLUE);
-			stringBuilder.append(mainCommand);
-			if(commandArgs != null) {
-				stringBuilder.append(' ');
-				stringBuilder.append(commandArgs);
-			}
-			if(description != null) {
-				stringBuilder.append(ChatColor.DARK_AQUA);
-				stringBuilder.append(" - ");
-				stringBuilder.append(description);
-			}
-			stringBuilder.append("\n");
+	public void appendHelpEntry(StringBuilder stringBuilder, String mainCommand, String commandArgs, String description) {
+		stringBuilder.append(ChatColor.BLUE);
+		stringBuilder.append(mainCommand);
+		if(commandArgs != null) {
+			stringBuilder.append(' ');
+			stringBuilder.append(commandArgs);
 		}
+		if(description != null) {
+			stringBuilder.append(ChatColor.DARK_AQUA);
+			stringBuilder.append(" - ");
+			stringBuilder.append(description);
+		}
+		stringBuilder.append("\n");
 	}
 	
 }

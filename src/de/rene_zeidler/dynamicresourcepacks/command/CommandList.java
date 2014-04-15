@@ -44,7 +44,7 @@ public class CommandList extends DynamicResourcepacksCommand {
 	}
 	
 	public static boolean canSee(Permissible permissible) {
-		return permissible.hasPermission("dynamicresourcepacks.list");
+		return permissible.hasPermission("dynamicresourcepacks.list.selectable");
 	}
 	
 	public void printResourcepackList(CommandSender sender, Permissible player) {

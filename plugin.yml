@@ -26,6 +26,7 @@ permissions:
       dynamicresourcepacks.edit: true
       dynamicresourcepacks.remove: true
       dynamicresourcepacks.unlock: true
+      dynamicresourcepacks.playerinfo: true
   dynamicresourcepacks.usepack:
     description: Allows the player to use packs with the general permission
     default: true
@@ -95,4 +96,7 @@ permissions:
     default: op
   dynamicresourcepacks.unlock:
     description: Allows the player to unlock the resourcepack of a player
+    default: op
+  dynamicresourcepacks.playerinfo:
+    description: Allows the player to view the information of another player (e.g. selected resourcepack)
     default: op
