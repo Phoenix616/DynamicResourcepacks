@@ -53,6 +53,7 @@ public class CommandPlayerinfo extends DynamicResourcepacksCommand {
 		msg.append("UUID: ");
 		msg.append(ChatColor.AQUA);
 		msg.append(player.getUniqueId().toString());
+		msg.append("\n");
 
 		msg.append(ChatColor.DARK_AQUA);
 		if(this.packManager.hasResourcepack(player)) {
@@ -62,6 +63,7 @@ public class CommandPlayerinfo extends DynamicResourcepacksCommand {
 		} else {
 			msg.append("No resourcepack selected");
 		}
+		msg.append("\n");
 		
 		msg.append(ChatColor.DARK_AQUA);
 		msg.append("Locked: ");
