@@ -55,9 +55,9 @@ public class CommandEdit extends DynamicResourcepacksCommand {
 				}
 				
 			} else if("displayName".equalsIgnoreCase(this.args[1])) {
-				StringBuilder displayName = new StringBuilder();
-				for(int i = 2; i < this.args.length; i++)
-					displayName.append(this.args[i]);
+				StringBuilder displayName = new StringBuilder(this.args[2]);
+				for(int i = 3; i < this.args.length; i++)
+					displayName.append(" ").append(this.args[i]);
 				pack.setDisplayName(displayName.toString());
 				sender.sendMessage(ChatColor.GREEN      + "Successfully set the display name of " +
 				                   ChatColor.DARK_GREEN + pack.getName() +

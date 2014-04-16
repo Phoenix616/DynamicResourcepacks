@@ -30,7 +30,8 @@ public class CommandDynamicResourcepacks extends DynamicResourcepacksCommand {
 						new CommandEdit(this.plugin,
 						this.label + " " + cmd,
 						this.dynamicResourcepacksAlias, this.setresourcepackAlias,
-						new String[] {"", ""}).tabComplete(sender); //complete property
+						new String[] {"", (this.args[0].length() > cmd.length()) ? this.args[0].substring(cmd.length()) : ""}
+						).tabComplete(sender); //complete property
 				for(int i = 0; i < completions.size(); i++)
 					completions.set(i, cmd + Character.toUpperCase(completions.get(i).charAt(0)) + completions.get(i).substring(1));
 				return completions;
