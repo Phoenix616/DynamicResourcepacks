@@ -23,16 +23,23 @@ public class CommandDynamicResourcepacks extends DynamicResourcepacksCommand {
 
 	@Override
 	public List<String> tabComplete(CommandSender sender) {
-		if(this.args.length == 1) {
-			if("set".equals(this.args[0]) || "edit".equals(this.args[0])) {
+		if(StringUtil.startsWithIgnoreCase(this.args[0], "set") || StringUtil.startsWithIgnoreCase(this.args[0], "edit")) {
+			String cmd = StringUtil.startsWithIgnoreCase(this.args[0], "set") ? "set" : "edit";
+			if(this.args.length == 1) {
 				List<String> completions =
 						new CommandEdit(this.plugin,
-						this.label + " " + this.args[0],
+						this.label + " " + cmd,
 						this.dynamicResourcepacksAlias, this.setresourcepackAlias,
-						new String[] {"", ""}).tabComplete(sender);
-				this.prefixCompletions(completions, this.args[0]);
+						new String[] {"", ""}).tabComplete(sender); //complete property
+				for(int i = 0; i < completions.size(); i++)
+					completions.set(i, cmd + Character.toUpperCase(completions.get(i).charAt(0)) + completions.get(i).substring(1));
 				return completions;
+			} else if(this.args.length == 2) {
+				return this.completeResourcepack(sender, this.args[1]);
 			}
+		}
+		
+		if(this.args.length == 1) {
 			return this.getCommands(sender, this.args[0]);
 		} else {
 			return this.getCommand().tabComplete(sender);

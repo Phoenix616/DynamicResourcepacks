@@ -25,7 +25,7 @@ public class CommandEdit extends DynamicResourcepacksCommand {
 		boolean canRename = sender.hasPermission("dynamicresourcepacks.rename");
 		boolean canEdit   = sender.hasPermission("dynamicresourcepacks.edit");
 		
-		if(this.args.length != 3 || (this.args.length > 3 && "displayName".equalsIgnoreCase(this.args[1]))) {
+		if(this.args.length != 3 && !(this.args.length > 3 && "displayName".equalsIgnoreCase(this.args[1]))) {
 			if(canEdit)
 				sender.sendMessage(ChatColor.RED + "Usage: /" + this.label + " <name> <property> <value>");
 			else if(canRename)

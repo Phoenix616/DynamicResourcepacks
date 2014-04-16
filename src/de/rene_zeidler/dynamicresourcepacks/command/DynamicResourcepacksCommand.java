@@ -1,6 +1,7 @@
 package de.rene_zeidler.dynamicresourcepacks.command;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.bukkit.ChatColor;
@@ -149,6 +150,8 @@ public abstract class DynamicResourcepacksCommand {
 		for(Resourcepack pack : visiblePacks)
 			if(pack.getName().startsWith(arg))
 				completions.add(pack.getName());
+		
+		Collections.sort(completions);
 		return completions;
 	}
 	
@@ -177,11 +180,5 @@ public abstract class DynamicResourcepacksCommand {
 			completions.add(command);
 		if(arg.length() > 0)
 			this.addCompletions(completions, arg, aliases);
-	}
-	
-	public void prefixCompletions(List<String> completions, String prefix) {
-		if(completions == null || completions.size() == 0) return;
-		for(int i = 0; i < completions.size(); i++)
-			completions.set(i, prefix + completions.get(i));
 	}
 }
