@@ -143,7 +143,7 @@ public class ResourcepackManager {
 	 * @param pack Resourcepack to set
 	 */
 	public void setResourcepack(Player player, Resourcepack pack) {
-		if(pack == null) {
+		if(pack == null || pack == EMPTY_PACK) {
 			this.clearResourcepack(player);
 			return;
 		}

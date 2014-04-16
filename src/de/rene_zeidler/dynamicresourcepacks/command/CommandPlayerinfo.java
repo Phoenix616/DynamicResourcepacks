@@ -66,6 +66,7 @@ public class CommandPlayerinfo extends DynamicResourcepacksCommand {
 		
 		.append(ChatColor.DARK_AQUA).append("Locked: ")
 		.append(ChatColor.AQUA)     .append(this.packManager.getLocked(player))
+		.append("\n")
 		
 		.append(ChatColor.DARK_AQUA).append("Permissions: ")
 		.append(ChatColor.AQUA);

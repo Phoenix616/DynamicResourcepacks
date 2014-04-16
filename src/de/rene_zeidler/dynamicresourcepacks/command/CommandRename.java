@@ -47,8 +47,10 @@ public class CommandRename extends DynamicResourcepacksCommand {
 	public List<String> tabComplete(CommandSender sender) {
 		if(this.args.length == 1)
 			return this.completeResourcepack(sender, args[0]);
-		else
-			return new ArrayList<String>();
+		else if(this.args.length == 2)
+			sender.sendMessage(ChatColor.GOLD + "Please enter the new name (id)");
+		
+		return new ArrayList<String>();
 	}
 	
 	public static boolean canSee(Permissible permissible) {

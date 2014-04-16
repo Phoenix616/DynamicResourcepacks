@@ -21,6 +21,13 @@ public class CommandSetresourcepack extends DynamicResourcepacksCommand {
 
 	@Override
 	public boolean run(CommandSender sender) {
+		/* TODO: selectors?
+		 * pack:xyz
+		 * radius:10
+		 * 
+		 * TODO: clear?
+		 */
+		
 		if(this.args.length == 0)
 			this.printCurrentPackInfo(sender);
 		else if(this.args.length > 0 && ("help".equalsIgnoreCase(this.args[0]) || "?".equalsIgnoreCase(this.args[0]))) {
