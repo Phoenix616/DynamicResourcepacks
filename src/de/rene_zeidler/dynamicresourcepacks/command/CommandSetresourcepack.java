@@ -99,8 +99,17 @@ public class CommandSetresourcepack extends DynamicResourcepacksCommand {
 			//other player
 			player = sender.getServer().getPlayer(this.args[0]);
 			if(player == null) {
-				sender.sendMessage(ChatColor.RED + "There is no online player named " + this.args[0]);
-				return true;
+				if(this.args.length == 2 || this.args[2].startsWith("-")) {
+					sender.sendMessage(ChatColor.RED + "There is no online player named " + this.args[0]);
+					return true;
+				} else {
+					//just assume the player wanted to use the main dynamicresourcepacks command
+					return new CommandDynamicResourcepacks(this.plugin,
+							this.dynamicResourcepacksAlias,
+							this.dynamicResourcepacksAlias,
+							this.setresourcepackAlias,
+							this.args).run(sender);
+				}
 			}
 			packArg = 1;
 		}
@@ -113,7 +122,7 @@ public class CommandSetresourcepack extends DynamicResourcepacksCommand {
 		for(int i = packArg + 1; i < this.args.length; i++) {
 			String flag = this.args[i];
 			String value = (this.args.length > i + 1) ? this.args[i + 1] : null;
-			if(value.startsWith("-"))
+			if(value != null && value.startsWith("-"))
 				value = null;
 			else
 				i++;
@@ -206,10 +215,10 @@ public class CommandSetresourcepack extends DynamicResourcepacksCommand {
 			return;
 		} else if(!pack.checkGeneralPermission(player)) {
 			sender.sendMessage(ChatColor.RED  + "The player " +
-					ChatColor.GOLD + player.getName() +
-					ChatColor.RED  + " doesn't have permission to use the resourcepack " +
-					ChatColor.GOLD + pack.getDisplayName() +
-					ChatColor.RED  + "!");
+							   ChatColor.GOLD + player.getName() +
+							   ChatColor.RED  + " doesn't have permission to use the resourcepack " +
+							   ChatColor.GOLD + pack.getDisplayName() +
+							   ChatColor.RED  + "!");
 			return;
 		}
 		
@@ -219,32 +228,32 @@ public class CommandSetresourcepack extends DynamicResourcepacksCommand {
 					this.packManager.setLocked(player, false);
 					if(useSelf) sender.sendMessage(ChatColor.GREEN      + "Your resourcepack has been unlocked");
 					else        sender.sendMessage(ChatColor.GREEN      + "The resourcepack of " +
-							ChatColor.DARK_GREEN + player.getName() +
-							ChatColor.GREEN      + " has been unlocked");
+												   ChatColor.DARK_GREEN + player.getName() +
+												   ChatColor.GREEN      + " has been unlocked");
 				}
 			} else {
 				if(useSelf) sender.sendMessage(ChatColor.RED  + "Your resourcepack is locked!");
 				else        sender.sendMessage(ChatColor.RED  + "The resourcepack of " +
-						ChatColor.GOLD + player.getName() +
-						ChatColor.RED  + " is locked!");
+											   ChatColor.GOLD + player.getName() +
+											   ChatColor.RED  + " is locked!");
 				return;
 			}
 		} else if(lock) {
 			this.packManager.setLocked(player, true);
 			if(useSelf) sender.sendMessage(ChatColor.GREEN      + "Your resourcepack has been locked");
 			else        sender.sendMessage(ChatColor.GREEN      + "The resourcepack of " +
-					ChatColor.DARK_GREEN + player.getName() +
-					ChatColor.GREEN      + " has been locked");
+										   ChatColor.DARK_GREEN + player.getName() +
+										   ChatColor.GREEN      + " has been locked");
 		}
 
 		this.packManager.setResourcepack(player, pack);
 
 		if(useSelf) sender.sendMessage(ChatColor.GREEN      + "You now use the resourcepack " +
-				ChatColor.DARK_GREEN + pack.getDisplayName());
+									   ChatColor.DARK_GREEN + pack.getDisplayName());
 		else        sender.sendMessage(ChatColor.GREEN      + "The resourcepack of " +
-				ChatColor.DARK_GREEN + player.getName() +
-				ChatColor.GREEN      + " has been set to " +
-				ChatColor.DARK_GREEN + pack.getDisplayName());
+									   ChatColor.DARK_GREEN + player.getName() +
+									   ChatColor.GREEN      + " has been set to " +
+									   ChatColor.DARK_GREEN + pack.getDisplayName());
 
 		this.packManager.saveConfigForPlayer(player);
 		this.plugin.saveConfig();

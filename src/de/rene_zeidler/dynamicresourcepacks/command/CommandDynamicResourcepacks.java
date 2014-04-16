@@ -23,7 +23,7 @@ public class CommandDynamicResourcepacks extends DynamicResourcepacksCommand {
 
 	@Override
 	public List<String> tabComplete(CommandSender sender) {
-		if(StringUtil.startsWithIgnoreCase(this.args[0], "set") || StringUtil.startsWithIgnoreCase(this.args[0], "edit")) {
+		if(CommandEdit.canSee(sender) && (StringUtil.startsWithIgnoreCase(this.args[0], "set") || StringUtil.startsWithIgnoreCase(this.args[0], "edit"))) {
 			String cmd = StringUtil.startsWithIgnoreCase(this.args[0], "set") ? "set" : "edit";
 			if(this.args.length == 1) {
 				List<String> completions =
@@ -51,7 +51,6 @@ public class CommandDynamicResourcepacks extends DynamicResourcepacksCommand {
 		List<String> completions = new ArrayList<String>();
 		
 		this.addCommandCompletions(completions, arg, "help");
-		this.addCommandCompletions(completions, arg, "version");
 		if(CommandView.      canSee(sender)) this.addCommandCompletions(completions, arg, "view", "show", "info");
 		if(CommandList.      canSee(sender)) this.addCommandCompletions(completions, arg, "list");
 		if(CommandPlayerinfo.canSee(sender)) this.addCommandCompletions(completions, arg, "playerinfo");
@@ -62,6 +61,7 @@ public class CommandDynamicResourcepacks extends DynamicResourcepacksCommand {
 		if(CommandLock.      canSee(sender)) this.addCommandCompletions(completions, arg, "lock");
 		if(CommandUnlock.    canSee(sender)) this.addCommandCompletions(completions, arg, "unlock");
 		if(CommandSetresourcepack.canSee(sender)) this.addCommandCompletions(completions, arg, null, "use", "switch");
+		this.addCommandCompletions(completions, arg, "version");
 		
 		return completions;
 	}

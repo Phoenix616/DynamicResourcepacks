@@ -59,7 +59,7 @@ public abstract class DynamicResourcepacksCommand {
 			
 			sender.sendMessage(ChatColor.GOLD + "A new resourcepack \"" + ChatColor.YELLOW + pack + ChatColor.GOLD + "\" for the URL \"" + ChatColor.YELLOW + input + ChatColor.GOLD + "\" has been automatically created.");
 			if(sender.hasPermission("dynamicresourcepacks.rename"))
-				sender.sendMessage(ChatColor.GOLD + "Use " + ChatColor.YELLOW + this.dynamicResourcepacksAlias + " rename " + pack + " <newName>" + ChatColor.GOLD + " to rename it.");
+				sender.sendMessage(ChatColor.GOLD + "Use " + ChatColor.YELLOW + "/" + this.dynamicResourcepacksAlias + " rename " + pack + " <newName>" + ChatColor.GOLD + " to rename it.");
 			
 			pack = new Resourcepack(name, input, sender.getName());
 			this.packManager.addResourcepack(pack);
@@ -81,7 +81,7 @@ public abstract class DynamicResourcepacksCommand {
 	public void printCurrentPackInfo(CommandSender sender) {
 		if(!(sender instanceof Player)) {
 			sender.sendMessage(ChatColor.RED + "You can't have a selected resourcepack!");
-			sender.sendMessage(ChatColor.GOLD + "Use " + ChatColor.YELLOW + this.dynamicResourcepacksAlias + " view <pack>");
+			sender.sendMessage(ChatColor.GOLD + "Use " + ChatColor.YELLOW + "/" + this.dynamicResourcepacksAlias + " view <pack>");
 			return;
 		}
 		
@@ -93,9 +93,9 @@ public abstract class DynamicResourcepacksCommand {
 			} else {
 				sender.sendMessage(ChatColor.RED + "You currently don't have a resourcepack selected!");
 				if(sender.hasPermission("dynamicresourcepacks.view.selectable"))
-					sender.sendMessage(ChatColor.GOLD + "Use " + ChatColor.YELLOW + this.dynamicResourcepacksAlias + " view <pack>" + ChatColor.GOLD + " to show the infomarion of another pack");
+					sender.sendMessage(ChatColor.GOLD + "Use " + ChatColor.YELLOW + "/" + this.dynamicResourcepacksAlias + " view <pack>" + ChatColor.GOLD + " to show the infomarion of another pack");
 				if(sender.hasPermission("dynamicresourcepacks.list.selectable"))
-					sender.sendMessage(ChatColor.GOLD + "Use " + ChatColor.YELLOW + this.dynamicResourcepacksAlias + " list" + ChatColor.GOLD + " to list all resourcepacks");
+					sender.sendMessage(ChatColor.GOLD + "Use " + ChatColor.YELLOW + "/" + this.dynamicResourcepacksAlias + " list" + ChatColor.GOLD + " to list all resourcepacks");
 			}
 		else {
 			sender.sendMessage(ChatColor.RED + "You don't have permission to do that!");

@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permissible;
 
 import de.rene_zeidler.dynamicresourcepacks.DynamicResourcepacks;
+import de.rene_zeidler.dynamicresourcepacks.Resourcepack;
 
 public class CommandPlayerinfo extends DynamicResourcepacksCommand {
 
@@ -42,34 +43,51 @@ public class CommandPlayerinfo extends DynamicResourcepacksCommand {
 			}
 		}
 		
-		StringBuilder msg = new StringBuilder();
-		msg.append(ChatColor.BLUE);
-		msg.append("Showing info for player ");
-		msg.append(ChatColor.DARK_AQUA);
-		msg.append(player.getName());
-		msg.append(ChatColor.BLUE);
-		msg.append(":\n");
+		StringBuilder msg = new StringBuilder()
 		
-		msg.append(ChatColor.DARK_AQUA);
-		msg.append("UUID: ");
-		msg.append(ChatColor.AQUA);
-		msg.append(player.getUniqueId().toString());
-		msg.append("\n");
+		.append(ChatColor.BLUE).     append("Showing info for player ")
+		.append(ChatColor.DARK_AQUA).append(player.getName())
+		.append(ChatColor.BLUE).     append(":\n")
+		
+		.append(ChatColor.DARK_AQUA).append("UUID: ")
+		.append(ChatColor.AQUA)      .append(player.getUniqueId().toString())
+		.append("\n")
 
-		msg.append(ChatColor.DARK_AQUA);
+		.append(ChatColor.DARK_AQUA);
 		if(this.packManager.hasResourcepack(player)) {
-			msg.append("Resourcepack: ");
-			msg.append(ChatColor.AQUA);
-			msg.append(this.packManager.getResourcepack(player));
+			Resourcepack pack = this.packManager.getResourcepack(player);
+			msg.append("Resourcepack: ")
+			.append(ChatColor.AQUA).append(pack.getDisplayName())
+			                       .append(" (").append(pack.getName()).append(")");
 		} else {
 			msg.append("No resourcepack selected");
 		}
-		msg.append("\n");
+		msg.append("\n")
 		
-		msg.append(ChatColor.DARK_AQUA);
-		msg.append("Locked: ");
-		msg.append(ChatColor.AQUA);
-		msg.append(this.packManager.getLocked(player));
+		.append(ChatColor.DARK_AQUA).append("Locked: ")
+		.append(ChatColor.AQUA)     .append(this.packManager.getLocked(player))
+		
+		.append(ChatColor.DARK_AQUA).append("Permissions: ")
+		.append(ChatColor.AQUA);
+		if(player.hasPermission("dynamicresourcepacks.use.*")) {
+			msg.append(ChatColor.ITALIC).append("All (*)");
+		} else {
+			int count = 0;
+			for(Resourcepack pack : this.packManager.getResourcepacks()) {
+				if(pack.checkGeneralPermission(player)) {
+					if(pack.checkUseSelfPermission(player))
+						msg.append(ChatColor.ITALIC);
+					msg.append(pack.getName())
+					.append(ChatColor.AQUA).append(", ");
+					count++;
+				}
+			}
+			if(count > 0)
+				msg.replace(msg.length() - 2, msg.length(), " (")
+				.append(count).append(")");
+			else
+				msg.append(ChatColor.ITALIC).append("None");
+		}
 		
 		sender.sendMessage(msg.toString());
 		

@@ -93,12 +93,12 @@ public class Resourcepack implements Comparable<Resourcepack> {
 	
 	public String getGeneralPermissionNode() {
 		if(this.generalPermission == Permission.NONE) return null;
-		return "dynamicresourcepacks.usepack" + (this.generalPermission == Permission.SPECIFIC ? this.name : "");
+		return "dynamicresourcepacks.usepack" + (this.generalPermission == Permission.SPECIFIC ? "." + this.name : "");
 	}
 	
 	public String getUseSelfPermissionNode() {
 		if(this.useSelfPermission == Permission.NONE) return null;
-		return "dynamicresourcepacks.usepack" + (this.useSelfPermission == Permission.SPECIFIC ? this.name : "");
+		return "dynamicresourcepacks.usepack" + (this.useSelfPermission == Permission.SPECIFIC ? "." + this.name : "");
 	}
 	
 	public boolean checkGeneralPermission(Permissible player) {

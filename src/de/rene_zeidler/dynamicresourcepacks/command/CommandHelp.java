@@ -24,12 +24,10 @@ public class CommandHelp extends DynamicResourcepacksCommand {
 		if(this.args.length > 0) {
 			if("aliases".equalsIgnoreCase(this.args[0])) {
 				foundTopic = true;
-				msg.append(ChatColor.GOLD);
-				msg.append(ChatColor.ITALIC);
-				msg.append("Showing aliases for DynamicResourcepacks commands:\n");
+				msg.append(ChatColor.GOLD).append(ChatColor.ITALIC)
+				.append("Showing aliases for DynamicResourcepacks commands:\n")
 				
-				msg.append(ChatColor.DARK_AQUA);
-				msg.append("/dynamicresourcepacks");
+				.append(ChatColor.DARK_AQUA).append("/dynamicresourcepacks");
 				for(String alias : this.plugin.getCommand("dynamicresourcepacks").getAliases())
 					this.appendAlias(msg, alias);
 				msg.append("\n");
@@ -41,8 +39,7 @@ public class CommandHelp extends DynamicResourcepacksCommand {
 				if(CommandRemove.canSee(sender)) this.appendAliases(msg, this.dynamicResourcepacksAlias, "remove", "delete");
 				this.appendAliases(msg, this.dynamicResourcepacksAlias, "version", "ver");
 				
-				msg.append(ChatColor.BLUE);
-				msg.append("/setresourcepack");
+				msg.append(ChatColor.DARK_AQUA).append("/setresourcepack");
 				for(String alias : this.plugin.getCommand("setresourcepack").getAliases())
 					this.appendAlias(msg, alias);
 				msg.append("\n");
@@ -52,9 +49,8 @@ public class CommandHelp extends DynamicResourcepacksCommand {
 		}
 		
 		if(!foundTopic) {
-			msg.append(ChatColor.GOLD);
-			msg.append(ChatColor.ITALIC);
-			msg.append("Showing help for DynamicResourcepacks:\n");
+			msg.append(ChatColor.GOLD).append(ChatColor.ITALIC)
+			.append("Showing help for DynamicResourcepacks:\n");
 			
 			this.appendHelpEntry(msg, this.dynamicResourcepacksAlias, "help",           "Shows a list of available commands");
 			this.appendHelpEntry(msg, this.dynamicResourcepacksAlias, "help aliases",   "Shows a list of available command aliases");
@@ -101,21 +97,19 @@ public class CommandHelp extends DynamicResourcepacksCommand {
 	}
 	
 	public void appendAliases(StringBuilder stringBuilder, String mainCommand, String mainAlias, String... aliases) {
-		stringBuilder.append(ChatColor.BLUE);
-		stringBuilder.append(mainCommand);
-		stringBuilder.append(' ');
-		stringBuilder.append(ChatColor.DARK_AQUA);
-		stringBuilder.append(mainAlias);
+		stringBuilder
+		.append(ChatColor.BLUE).append("/").append(mainCommand).append(' ')
+		.append(ChatColor.DARK_AQUA).append(mainAlias);
+		
 		for(String alias : aliases)
 			this.appendAlias(stringBuilder, alias);
 		stringBuilder.append("\n");
 	}
 	
 	public void appendAlias(StringBuilder stringBuilder, String alias) {
-		stringBuilder.append(ChatColor.DARK_GRAY);
-		stringBuilder.append("/");
-		stringBuilder.append(ChatColor.AQUA);
-		stringBuilder.append(alias);
+		stringBuilder
+		.append(ChatColor.DARK_GRAY).append("/")
+		.append(ChatColor.AQUA).append(alias);
 	}
 	
 	public void appendHelpEntry(StringBuilder stringBuilder, String mainCommand, String commandArgs) {
@@ -123,17 +117,11 @@ public class CommandHelp extends DynamicResourcepacksCommand {
 	}
 	
 	public void appendHelpEntry(StringBuilder stringBuilder, String mainCommand, String commandArgs, String description) {
-		stringBuilder.append(ChatColor.BLUE);
-		stringBuilder.append(mainCommand);
-		if(commandArgs != null) {
-			stringBuilder.append(' ');
-			stringBuilder.append(commandArgs);
-		}
-		if(description != null) {
-			stringBuilder.append(ChatColor.DARK_AQUA);
-			stringBuilder.append(" - ");
-			stringBuilder.append(description);
-		}
+		stringBuilder.append(ChatColor.BLUE).append("/").append(mainCommand);
+		if(commandArgs != null)
+			stringBuilder.append(' ').append(commandArgs);
+		if(description != null)
+			stringBuilder.append(ChatColor.DARK_AQUA).append(" - ").append(description);
 		stringBuilder.append("\n");
 	}
 	
