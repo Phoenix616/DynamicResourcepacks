@@ -2,7 +2,9 @@ package de.rene_zeidler.dynamicresourcepacks.command;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map.Entry;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
@@ -117,6 +119,22 @@ public abstract class DynamicResourcepacksCommand {
 			                   ChatColor.AQUA      + pack.getGeneralPermission().toString());
 			sender.sendMessage(ChatColor.DARK_AQUA + "Use Self Permission: " + 
 			                   ChatColor.AQUA      + pack.getUseSelfPermission().toString());
+			
+			if(pack.getName().equals("empty")) return;
+			//It wouldn't work for the empty pack because it isn't included in the HashMap of current packs
+			
+			String users = "";
+			HashMap<Player, String> packs = this.packManager.getCurrentResourcepacks();
+			for(Entry<Player, String> e : packs.entrySet())
+				if(pack.getName().equals(e.getValue()))
+					users += e.getKey().getName() + ", ";
+			if(users.isEmpty())
+				users = ChatColor.ITALIC + "none";
+			else
+				users = users.substring(0, users.length() - 2);
+			
+			sender.sendMessage(ChatColor.DARK_AQUA + "Users: " + 
+							   ChatColor.AQUA      + users);
 		}
 	}
 	

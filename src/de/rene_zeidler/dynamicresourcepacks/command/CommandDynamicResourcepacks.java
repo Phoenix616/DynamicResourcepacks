@@ -53,6 +53,7 @@ public class CommandDynamicResourcepacks extends DynamicResourcepacksCommand {
 		this.addCommandCompletions(completions, arg, "help");
 		if(CommandView.      canSee(sender)) this.addCommandCompletions(completions, arg, "view", "show", "info");
 		if(CommandList.      canSee(sender)) this.addCommandCompletions(completions, arg, "list");
+		if(CommandResend.    canSee(sender)) this.addCommandCompletions(completions, arg, "resend");
 		if(CommandPlayerinfo.canSee(sender)) this.addCommandCompletions(completions, arg, "playerinfo");
 		if(CommandCreate.    canSee(sender)) this.addCommandCompletions(completions, arg, "create", "add");
 		if(CommandEdit.      canSee(sender)) this.addCommandCompletions(completions, arg, "edit", "set");
@@ -87,6 +88,9 @@ public class CommandDynamicResourcepacks extends DynamicResourcepacksCommand {
 				
 			} else if("list".equalsIgnoreCase(command)) {
 				return new CommandList(this.plugin, newLabel, this.dynamicResourcepacksAlias, this.setresourcepackAlias, newArgs);
+				
+			} else if("resend".equalsIgnoreCase(command)) {
+				return new CommandResend(this.plugin, newLabel, this.dynamicResourcepacksAlias, this.setresourcepackAlias, newArgs);
 				
 			} else if("playerinfo".equalsIgnoreCase(command) ||
 					  "player"    .equalsIgnoreCase(command)) {

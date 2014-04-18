@@ -65,6 +65,11 @@ public class CommandHelp extends DynamicResourcepacksCommand {
 				if(sender.hasPermission("dynamicresourcepacks.view.selectable"))
 					this.appendHelpEntry(msg, this.dynamicResourcepacksAlias, "view <pack>", "Shows information on the given resourcepack");
 			}
+			if(CommandResend.canSee(sender)) {
+				this.appendHelpEntry(msg, this.dynamicResourcepacksAlias, "resend", "Resends the current resourcepack (when something went wrong)");
+				if(sender.hasPermission("dynamicresourcepacks.view.selectable"))
+					this.appendHelpEntry(msg, this.dynamicResourcepacksAlias, "resend <player|pack|all|empty>", "Resends the resourcepacks of one or more players");
+			}
 			
 			if(CommandCreate.canSee(sender)) this.appendHelpEntry(msg, this.dynamicResourcepacksAlias, "create <name> <url> [displayName] [generalPermission] [useSelfPermission]");
 			if(CommandRename.canSee(sender)) this.appendHelpEntry(msg, this.dynamicResourcepacksAlias, "rename <oldName> <newName>");
@@ -76,10 +81,9 @@ public class CommandHelp extends DynamicResourcepacksCommand {
 			this.appendHelpEntry(msg, this.dynamicResourcepacksAlias, "version", "Show the version of this plugin");
 			
 			if(CommandSetresourcepack.canSee(sender)) {
-				boolean canLock = sender.hasPermission("dynamicresourcepacks.setpack.lock");
-				this.appendHelpEntry(msg, this.setresourcepackAlias, "<pack>" + (canLock ? " [lock]" : ""), "Use the given resourcepack");
+				this.appendHelpEntry(msg, this.setresourcepackAlias, "<pack>", "Use the given resourcepack");
 				if(sender.hasPermission("dynamicresourcepacks.setpack.others"))
-					this.appendHelpEntry(msg, this.setresourcepackAlias, "<player> <pack>" + (canLock ? " [lock]" : ""), "Sets the resourcepack of a given player");
+					this.appendHelpEntry(msg, this.setresourcepackAlias, "<player|p:pack|all> <pack> [flags]", "Sets the resourcepack of a given player");
 			}
 		}
 	

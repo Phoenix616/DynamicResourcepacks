@@ -100,7 +100,7 @@ public class ResourcepackManager {
 	public void resendEmpty() {
 		for(Player player : this.plugin.getServer().getOnlinePlayers())
 			if(!this.currentPacks.containsKey(player))
-				this.sendResourcepack(player, this.currentPacks.get(player));
+				this.sendResourcepack(player, EMPTY_PACK);
 	}
 	
 	/**

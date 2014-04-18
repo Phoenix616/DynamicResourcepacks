@@ -1,12 +1,16 @@
 package de.rene_zeidler.dynamicresourcepacks.command;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map.Entry;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permissible;
+import org.bukkit.util.StringUtil;
 
 import de.rene_zeidler.dynamicresourcepacks.DynamicResourcepacks;
 import de.rene_zeidler.dynamicresourcepacks.Resourcepack;
@@ -21,13 +25,6 @@ public class CommandSetresourcepack extends DynamicResourcepacksCommand {
 
 	@Override
 	public boolean run(CommandSender sender) {
-		/* TODO: selectors?
-		 * pack:xyz
-		 * radius:10
-		 * 
-		 * TODO: clear?
-		 */
-		
 		if(this.args.length == 0)
 			this.printCurrentPackInfo(sender);
 		else if(this.args.length > 0 && ("help".equalsIgnoreCase(this.args[0]) || "?".equalsIgnoreCase(this.args[0]))) {
@@ -48,8 +45,15 @@ public class CommandSetresourcepack extends DynamicResourcepacksCommand {
 	@Override
 	public List<String> tabComplete(CommandSender sender) {
 		if(this.args.length == 1) {
+			if(StringUtil.startsWithIgnoreCase(this.args[0], "p:")) {
+				List<String> completions = this.completeResourcepack(sender, this.args[0].substring(2));
+				for(int i = 0; i < completions.size(); i++)
+					completions.set(i, "p:" + completions.get(i));
+				return completions;
+			}
+			
 			List<String> completions = this.completeResourcepack(sender, this.args[0]);
-			if(completions.size() == 0)
+			if(completions.size() == 0 && sender.hasPermission("dynamicresourcepacks.setpack.others"))
 				return null; //complete players
 			else
 				return completions;
@@ -90,7 +94,8 @@ public class CommandSetresourcepack extends DynamicResourcepacksCommand {
 			return true;
 		}
 		
-		Player player;
+		Player player = null;
+		List<Player> players = null;
 		Resourcepack pack;
 		int packArg;
 		
@@ -103,19 +108,38 @@ public class CommandSetresourcepack extends DynamicResourcepacksCommand {
 			player = (Player)sender;
 			packArg = 0;
 		} else {
-			//other player
-			player = sender.getServer().getPlayer(this.args[0]);
-			if(player == null) {
-				if(this.args.length == 2 || this.args[2].startsWith("-")) {
-					sender.sendMessage(ChatColor.RED + "There is no online player named " + this.args[0]);
+			//other player(s)
+			if("all".equalsIgnoreCase(this.args[0])) {
+				players = Arrays.asList(sender.getServer().getOnlinePlayers());
+			} else if(StringUtil.startsWithIgnoreCase(this.args[0], "p:")) {
+				Resourcepack p = this.getResourcepackForInputString(sender, this.args[0].substring(2));
+				
+				if(p.getName().equals("empty")) {
+					//It wouldn't work for the empty pack because it isn't included in the HashMap of current packs
+					sender.sendMessage(ChatColor.RED + "You can't use the empty resourcepack as a selector!");
 					return true;
-				} else {
-					//just assume the player wanted to use the main dynamicresourcepacks command
-					return new CommandDynamicResourcepacks(this.plugin,
-							this.dynamicResourcepacksAlias,
-							this.dynamicResourcepacksAlias,
-							this.setresourcepackAlias,
-							this.args).run(sender);
+				}
+				
+				players = new ArrayList<Player>();
+				HashMap<Player, String> packs = this.packManager.getCurrentResourcepacks();
+				for(Entry<Player, String> e : packs.entrySet())
+					if(p.getName().equals(e.getValue()))
+						players.add(e.getKey());
+				
+			} else {
+				player = sender.getServer().getPlayer(this.args[0]);
+				if(player == null) {
+					if(this.args.length == 2 || this.args[2].startsWith("-")) {
+						sender.sendMessage(ChatColor.RED + "There is no online player named " + this.args[0]);
+						return true;
+					} else {
+						//just assume the player wanted to use the main dynamicresourcepacks command
+						return new CommandDynamicResourcepacks(this.plugin,
+								this.dynamicResourcepacksAlias,
+								this.dynamicResourcepacksAlias,
+								this.setresourcepackAlias,
+								this.args).run(sender);
+					}
 				}
 			}
 			packArg = 1;
@@ -151,7 +175,11 @@ public class CommandSetresourcepack extends DynamicResourcepacksCommand {
 			}
 		}
 		
-		this.setResourcepack(sender, player, pack, lock, respectLock);
+		if(player != null)
+			this.setResourcepack(sender, player, pack, lock, respectLock);
+		if(players != null)
+			for(Player p : players)
+				if(!this.setResourcepack(sender, p, pack, lock, respectLock)) break;
 		
 		return true;
 	}
@@ -202,31 +230,35 @@ public class CommandSetresourcepack extends DynamicResourcepacksCommand {
 		sender.sendMessage(msg.toString());
 	}
 	
-	public void setResourcepack(CommandSender sender, Player player, Resourcepack pack, boolean lock, boolean respectLock) {
-		if(player == null || pack == null) return;
+	/* 
+	 * returns false when the sender has insufficient permissions
+	 * returns true when succeeds or the player has insufficient permissions
+	 */
+	public boolean setResourcepack(CommandSender sender, Player player, Resourcepack pack, boolean lock, boolean respectLock) {
+		if(player == null || pack == null) return false;
 
 		boolean useSelf = (sender == player);
 
 		if(!useSelf && !sender.hasPermission("dynamicresourcepacks.setpack.others")) {
 			sender.sendMessage(ChatColor.RED + "You don't have permission to set the resourcepack of other players!");
-			return;
+			return false;
 		}
 		
 		if(lock && !sender.hasPermission("dynamicresourcepacks.setpack.lock")) {
 			sender.sendMessage(ChatColor.RED + "You don't have permission to lock a resourcepack!");
-			return;
+			return false;
 		}
 		
 		if(useSelf && !pack.checkUseSelfPermission(player)) {
 			sender.sendMessage(ChatColor.RED + "You don't have permission to use this resourcepack!");
-			return;
+			return true;
 		} else if(!pack.checkGeneralPermission(player)) {
 			sender.sendMessage(ChatColor.RED  + "The player " +
 							   ChatColor.GOLD + player.getName() +
 							   ChatColor.RED  + " doesn't have permission to use the resourcepack " +
 							   ChatColor.GOLD + pack.getDisplayName() +
 							   ChatColor.RED  + "!");
-			return;
+			return true;
 		}
 		
 		if(this.packManager.getLocked(player)) {
@@ -243,7 +275,7 @@ public class CommandSetresourcepack extends DynamicResourcepacksCommand {
 				else        sender.sendMessage(ChatColor.RED  + "The resourcepack of " +
 											   ChatColor.GOLD + player.getName() +
 											   ChatColor.RED  + " is locked!");
-				return;
+				return true;
 			}
 		} else if(lock) {
 			this.packManager.setLocked(player, true);
@@ -264,5 +296,7 @@ public class CommandSetresourcepack extends DynamicResourcepacksCommand {
 
 		this.packManager.saveConfigForPlayer(player);
 		this.plugin.saveConfig();
+		
+		return true;
 	}
 }

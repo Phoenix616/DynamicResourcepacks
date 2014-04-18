@@ -27,6 +27,8 @@ permissions:
       dynamicresourcepacks.remove: true
       dynamicresourcepacks.unlock: true
       dynamicresourcepacks.playerinfo: true
+      dynamicresourcepacks.resend: true
+      dynamicresourcepacks.resend.others: true
   dynamicresourcepacks.usepack:
     description: Allows the player to use packs with the general permission
     default: true
@@ -99,4 +101,10 @@ permissions:
     default: op
   dynamicresourcepacks.playerinfo:
     description: Allows the player to view the information of another player (e.g. selected resourcepack)
+    default: op
+  dynamicresourcepacks.resend:
+    description: Allows the player to resend the currently selected resourcepack to thei client
+    default: true
+  dynamicresourcepacks.resend.others:
+    description: Allows the player to resend the resourcepack of others to their clients
     default: op
