@@ -182,9 +182,32 @@ public abstract class DynamicResourcepacksCommand {
 	}
 	
 	public List<String> completeURL(CommandSender sender, String arg) {
-		return this.completeValues(arg, "http://", "https://");
-		//TODO: completion based on previously used URLs?
-		//when player has dynamicresourcepacks.view.full
+		if(sender.hasPermission("dynamicresourcepacks.view.full")) {
+			List<Resourcepack> packs;
+			if(sender.hasPermission("dynamicresourcepacks.view.all"))
+				packs = this.packManager.getResourcepacks();
+			else if(sender.hasPermission("dynamicresourcepacks.view.usable"))
+				packs = this.packManager.getUsableResourcepacks(sender);
+			else if(sender.hasPermission("dynamicresourcepacks.view.selectable"))
+				packs = this.packManager.getSelectableResourcepacks(sender);
+			else
+				return this.completeValues(arg, "http://", "https://");
+			
+			List<String> completions = new ArrayList<String>();
+			for(Resourcepack pack : packs) {
+				String domain = pack.getURL();
+				int i = domain.indexOf('/', 8);
+				if(i < 0)
+					continue;
+				domain = domain.substring(0, i + 1);
+				if(completions.contains(domain))
+					continue;
+				if(StringUtil.startsWithIgnoreCase(domain, arg))
+					completions.add(domain);
+			}
+			return (completions.size() == 0) ? this.completeValues(arg, "http://", "https://") : completions;
+		} else
+			return this.completeValues(arg, "http://", "https://");
 	}
 	
 	public void addCompletions(List<String> completions, String arg, String... strings) {
