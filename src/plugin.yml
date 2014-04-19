@@ -1,6 +1,7 @@
 name: DynamicResourcepacks
 main: de.rene_zeidler.dynamicresourcepacks.DynamicResourcepacks
 version: 0.1.1
+softdepend: [ WorldGuard ]
 
 commands:
   dynamicresourcepacks:

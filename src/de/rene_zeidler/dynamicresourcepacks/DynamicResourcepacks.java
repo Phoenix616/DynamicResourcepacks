@@ -11,6 +11,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class DynamicResourcepacks extends JavaPlugin {
 	private ResourcepackManager packManager;
 	private PlayerListener playerListener;
+	private WorldGuardIntegration worldGuardIntegration;
 	
 	@Override
 	public void onEnable(){
@@ -18,20 +19,26 @@ public class DynamicResourcepacks extends JavaPlugin {
 		
 		this.packManager = new ResourcepackManager(this);
 		this.playerListener = new PlayerListener(this);
+		this.worldGuardIntegration = new WorldGuardIntegration(this);
 		
 		this.getServer().getPluginManager().registerEvents(this.playerListener, this);
 		this.getCommand("dynamicresourcepacks").setExecutor(this.playerListener);
 		this.getCommand("setresourcepack")     .setExecutor(this.playerListener);
 		
+		this.worldGuardIntegration.loadFromConfig();
 		this.packManager.loadFromConfig();
 	}
- 
+	
 	@Override
 	public void onDisable(){
 		this.packManager.saveConfig();
 		this.saveConfig();
 		
 		this.packManager = null;
+	}
+	
+	public WorldGuardIntegration getWorldGuardIntegration() {
+		return this.worldGuardIntegration;
 	}
 	
 	public ResourcepackManager getResourcepackManager() {
