@@ -77,6 +77,7 @@ public class CommandHelp extends DynamicResourcepacksCommand {
 			if(CommandRemove.canSee(sender)) this.appendHelpEntry(msg, this.dynamicResourcepacksAlias, "remove <name>");
 			if(CommandLock.  canSee(sender)) this.appendHelpEntry(msg, this.dynamicResourcepacksAlias, "lock <player>");
 			if(CommandUnlock.canSee(sender)) this.appendHelpEntry(msg, this.dynamicResourcepacksAlias, "unlock <player>");
+			if(CommandConfig.canSee(sender)) this.appendHelpEntry(msg, this.dynamicResourcepacksAlias, "config [path] [value]");
 			
 			this.appendHelpEntry(msg, this.dynamicResourcepacksAlias, "version", "Show the version of this plugin");
 			

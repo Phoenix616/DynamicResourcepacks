@@ -21,6 +21,11 @@ public class CommandResend extends DynamicResourcepacksCommand {
 
 	@Override
 	public boolean run(CommandSender sender) {
+		if(!sender.hasPermission("dynamicresourcepacks.resend")) {
+			sender.sendMessage(ChatColor.RED + "You don't have permission!");
+			return true;
+		}
+		
 		if(sender.hasPermission("dynamicresourcepacks.resend.others")) {
 			if(this.args.length > 1) {
 				sender.sendMessage(ChatColor.RED + "Usage: /" + this.label + " [player|pack|all|empty]");

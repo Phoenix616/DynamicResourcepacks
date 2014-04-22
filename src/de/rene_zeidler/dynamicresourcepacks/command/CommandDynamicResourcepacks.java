@@ -61,6 +61,7 @@ public class CommandDynamicResourcepacks extends DynamicResourcepacksCommand {
 		if(CommandRemove.    canSee(sender)) this.addCommandCompletions(completions, arg, "remove", "delete");
 		if(CommandLock.      canSee(sender)) this.addCommandCompletions(completions, arg, "lock");
 		if(CommandUnlock.    canSee(sender)) this.addCommandCompletions(completions, arg, "unlock");
+		if(CommandConfig.    canSee(sender)) this.addCommandCompletions(completions, arg, "config");
 		if(CommandSetresourcepack.canSee(sender)) this.addCommandCompletions(completions, arg, null, "use", "switch");
 		this.addCommandCompletions(completions, arg, "version");
 		
@@ -129,6 +130,9 @@ public class CommandDynamicResourcepacks extends DynamicResourcepacksCommand {
 			
 			} else if("unlock".equalsIgnoreCase(command)) {
 				return new CommandUnlock(this.plugin, newLabel, this.dynamicResourcepacksAlias, this.setresourcepackAlias, newArgs);
+				
+			} else if("config".equalsIgnoreCase(command)) {
+				return new CommandConfig(this.plugin, newLabel, this.dynamicResourcepacksAlias, this.setresourcepackAlias, newArgs);
 				
 			} else if("version".equalsIgnoreCase(command) ||
 					  "ver"    .equalsIgnoreCase(command)) {

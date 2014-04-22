@@ -13,6 +13,20 @@ commands:
     usage: /<command>
 
 permissions:
+  dynamicresourcepacks.mod:
+    description: Manage existing resourcepacks
+    children:
+      dynamicresourcepacks.usepack.*: true
+      dynamicresourcepacks.setpack.*: true
+      dynamicresourcepacks.list.all: true
+      dynamicresourcepacks.list.others: true
+      dynamicresourcepacks.view.all: true
+      dynamicresourcepacks.rename: true
+      dynamicresourcepacks.edit: true
+      dynamicresourcepacks.unlock: true
+      dynamicresourcepacks.playerinfo: true
+      dynamicresourcepacks.resend: true
+      dynamicresourcepacks.resend.others: true
   dynamicresourcepacks.*:
     description: Gives access to all DynamicResourcepacks commands
     children:
@@ -29,6 +43,7 @@ permissions:
       dynamicresourcepacks.playerinfo: true
       dynamicresourcepacks.resend: true
       dynamicresourcepacks.resend.others: true
+      dynamicresourcepacks.config: true
   dynamicresourcepacks.usepack:
     description: Allows the player to use packs with the general permission
     default: true
@@ -107,4 +122,7 @@ permissions:
     default: true
   dynamicresourcepacks.resend.others:
     description: Allows the player to resend the resourcepack of others to their clients
+    default: op
+  dynamicresourcepacks.config:
+    description: Allows the player to modify any config value directly
     default: op
