@@ -13,7 +13,7 @@ import org.bukkit.permissions.Permissible;
 import org.bukkit.util.StringUtil;
 
 import de.rene_zeidler.dynamicresourcepacks.DynamicResourcepacks;
-import de.rene_zeidler.dynamicresourcepacks.Resourcepack;
+import de.rene_zeidler.dynamicresourcepacks.resourcepacks.Resourcepack;
 
 public class CommandSetresourcepack extends DynamicResourcepacksCommand {
 

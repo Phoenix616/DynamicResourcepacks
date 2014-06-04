@@ -8,9 +8,9 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.permissions.Permissible;
 
 import de.rene_zeidler.dynamicresourcepacks.DynamicResourcepacks;
-import de.rene_zeidler.dynamicresourcepacks.Resourcepack;
-import de.rene_zeidler.dynamicresourcepacks.Resourcepack.Permission;
-import de.rene_zeidler.dynamicresourcepacks.ResourcepackManager;
+import de.rene_zeidler.dynamicresourcepacks.resourcepacks.Resourcepack;
+import de.rene_zeidler.dynamicresourcepacks.resourcepacks.ResourcepackManager;
+import de.rene_zeidler.dynamicresourcepacks.resourcepacks.Resourcepack.Permission;
 
 public class CommandEdit extends DynamicResourcepacksCommand {
 

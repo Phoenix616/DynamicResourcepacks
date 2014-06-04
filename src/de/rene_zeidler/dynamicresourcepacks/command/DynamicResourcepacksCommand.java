@@ -12,9 +12,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.StringUtil;
 
 import de.rene_zeidler.dynamicresourcepacks.DynamicResourcepacks;
-import de.rene_zeidler.dynamicresourcepacks.Resourcepack;
-import de.rene_zeidler.dynamicresourcepacks.Resourcepack.Permission;
-import de.rene_zeidler.dynamicresourcepacks.ResourcepackManager;
+import de.rene_zeidler.dynamicresourcepacks.resourcepacks.Resourcepack;
+import de.rene_zeidler.dynamicresourcepacks.resourcepacks.ResourcepackManager;
+import de.rene_zeidler.dynamicresourcepacks.resourcepacks.Resourcepack.Permission;
 
 public abstract class DynamicResourcepacksCommand {
 	protected String label;

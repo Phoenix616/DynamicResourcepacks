@@ -10,7 +10,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permissible;
 
 import de.rene_zeidler.dynamicresourcepacks.DynamicResourcepacks;
-import de.rene_zeidler.dynamicresourcepacks.Resourcepack;
+import de.rene_zeidler.dynamicresourcepacks.resourcepacks.Resourcepack;
 
 public class CommandList extends DynamicResourcepacksCommand {
 

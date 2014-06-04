@@ -1,4 +1,5 @@
-package de.rene_zeidler.dynamicresourcepacks;
+package de.rene_zeidler.dynamicresourcepacks.resourcepacks;
+
 
 import org.bukkit.permissions.Permissible;
 

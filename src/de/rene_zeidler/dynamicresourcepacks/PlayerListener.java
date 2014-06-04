@@ -13,6 +13,8 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import de.rene_zeidler.dynamicresourcepacks.command.CommandDynamicResourcepacks;
 import de.rene_zeidler.dynamicresourcepacks.command.CommandSetresourcepack;
 import de.rene_zeidler.dynamicresourcepacks.command.DynamicResourcepacksCommand;
+import de.rene_zeidler.dynamicresourcepacks.resourcepacks.LocalPlayer;
+import de.rene_zeidler.dynamicresourcepacks.resourcepacks.ResourcepackManager;
 
 public class PlayerListener implements Listener, TabExecutor {
 	private DynamicResourcepacks plugin;
@@ -25,12 +27,18 @@ public class PlayerListener implements Listener, TabExecutor {
 	
 	@EventHandler
 	public void onLogin(PlayerJoinEvent event) {
+		//TODO: remove
 		this.packManager.loadPlayerFromConfig(event.getPlayer());
+		
+		LocalPlayer.forPlayer(plugin, event.getPlayer()).onLogin();
 	}
 	
 	@EventHandler
 	public void onDisconnect(PlayerQuitEvent event) {
+		//TODO: remove
 		this.packManager.saveConfigForPlayer(event.getPlayer());
+		
+		LocalPlayer.forPlayer(this.plugin, event.getPlayer()).onDisconnect();
 	}
 	
 	@Override
