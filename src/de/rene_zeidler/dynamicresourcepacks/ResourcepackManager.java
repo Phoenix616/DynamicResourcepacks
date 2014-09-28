@@ -355,7 +355,8 @@ public class ResourcepackManager {
 		ConfigurationSection oldSection = this.config.getConfigurationSection("players");
 		ConfigurationSection newSection = this.config.createSection("players");
 		for(Player player : this.currentPacks.keySet()) {
-			ConfigurationSection p = newSection.createSection(player.getUniqueId().toString());
+			ConfigurationSection p = newSection.getConfigurationSection(player.getUniqueId().toString());
+			if(p == null) p = newSection.createSection(player.getUniqueId().toString());
 			p.set("name", player.getName());
 			p.set("pack", this.currentPacks.get(player));
 			p.set("locked", this.getLocked(player));
@@ -377,7 +378,8 @@ public class ResourcepackManager {
 	public void saveConfigForPlayer(Player player) {
 		ConfigurationSection section = this.config.getConfigurationSection("players");
 		if(section == null) section = this.config.createSection("players");
-		ConfigurationSection p = section.createSection(player.getUniqueId().toString());
+		ConfigurationSection p = section.getConfigurationSection(player.getUniqueId().toString());
+		if(p == null) p = section.createSection(player.getUniqueId().toString());
 		p.set("name", player.getName());
 		p.set("pack", this.currentPacks.get(player));
 		p.set("locked", this.getLocked(player));
