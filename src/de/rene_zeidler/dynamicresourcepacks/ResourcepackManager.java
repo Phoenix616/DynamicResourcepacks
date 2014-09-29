@@ -355,11 +355,15 @@ public class ResourcepackManager {
 		ConfigurationSection oldSection = this.config.getConfigurationSection("players");
 		ConfigurationSection newSection = this.config.createSection("players");
 		for(Player player : this.currentPacks.keySet()) {
+			String pack = this.currentPacks.get(player);
 			ConfigurationSection p = newSection.getConfigurationSection(player.getUniqueId().toString());
 			if(p == null) p = newSection.createSection(player.getUniqueId().toString());
-			p.set("name", player.getName());
-			p.set("pack", this.currentPacks.get(player));
-			p.set("locked", this.getLocked(player));
+			else if(pack == null) newSection.set(player.getUniqueId().toString(), null);
+			else {
+				p.set("name", player.getName());
+				p.set("pack", pack);
+				p.set("locked", this.getLocked(player));
+			}
 			if(oldSection != null && oldSection.isConfigurationSection(player.getUniqueId().toString()))
 				oldSection.set(player.getUniqueId().toString(), null);
 		}
@@ -376,13 +380,17 @@ public class ResourcepackManager {
 	 * (The config itself is not automatically saved to the disk!)
 	 */
 	public void saveConfigForPlayer(Player player) {
+		String pack = this.currentPacks.get(player);
 		ConfigurationSection section = this.config.getConfigurationSection("players");
 		if(section == null) section = this.config.createSection("players");
 		ConfigurationSection p = section.getConfigurationSection(player.getUniqueId().toString());
 		if(p == null) p = section.createSection(player.getUniqueId().toString());
-		p.set("name", player.getName());
-		p.set("pack", this.currentPacks.get(player));
-		p.set("locked", this.getLocked(player));
+		else if(pack == null) section.set(player.getUniqueId().toString(), null);
+		else {
+			p.set("name", player.getName());
+			p.set("pack", pack);
+			p.set("locked", this.getLocked(player));
+		}
 	}
 	
 	/**
