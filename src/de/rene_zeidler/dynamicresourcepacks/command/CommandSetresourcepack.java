@@ -5,7 +5,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.UUID;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -121,10 +123,11 @@ public class CommandSetresourcepack extends DynamicResourcepacksCommand {
 				}
 				
 				players = new ArrayList<Player>();
-				HashMap<Player, String> packs = this.packManager.getCurrentResourcepacks();
-				for(Entry<Player, String> e : packs.entrySet())
-					if(p.getName().equals(e.getValue()))
-						players.add(e.getKey());
+				HashMap<UUID, String> packs = this.packManager.getCurrentResourcepacks();
+				for(Entry<UUID, String> e : packs.entrySet())
+					if(p.getName().equals(e.getValue())) 
+						players.add(Bukkit.getPlayer(e.getKey()));
+					
 				
 			} else {
 				player = sender.getServer().getPlayer(this.args[0]);

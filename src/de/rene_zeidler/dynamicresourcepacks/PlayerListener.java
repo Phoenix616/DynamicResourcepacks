@@ -1,10 +1,13 @@
 package de.rene_zeidler.dynamicresourcepacks;
 
 import java.util.List;
+import java.util.UUID;
 
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -25,7 +28,19 @@ public class PlayerListener implements Listener, TabExecutor {
 	
 	@EventHandler
 	public void onLogin(PlayerJoinEvent event) {
-		this.packManager.loadPlayerFromConfig(event.getPlayer());
+		final ResourcepackManager pm = this.packManager;
+		final UUID playerid = event.getPlayer().getUniqueId();
+		/**		
+		Scheduler necessary because the player can't receive the resourcepack prompt in the tick he joins as his gui will not display -> player would have not resourcepack!
+		*/
+		Bukkit.getScheduler().scheduleSyncDelayedTask(this.plugin, new Runnable() {
+			@Override
+			public void run() {
+				Player player = Bukkit.getPlayer(playerid);
+				if(player != null && player.isOnline())
+					pm.loadPlayerFromConfig(player);				
+			}
+		}, 10L);
 	}
 	
 	@EventHandler

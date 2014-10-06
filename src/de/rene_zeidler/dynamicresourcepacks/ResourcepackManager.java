@@ -21,7 +21,7 @@ import de.rene_zeidler.dynamicresourcepacks.Resourcepack.Permission;
  * Stores the URL of the resourcepack for players and sends it to the player.
  * 
  * @author René Zeidler
- * @version 0.1.1
+ * @version 0.1.3
  */
 public class ResourcepackManager {
 	private DynamicResourcepacks plugin;
@@ -30,13 +30,13 @@ public class ResourcepackManager {
 	private static final Resourcepack EMPTY_PACK = new Resourcepack("empty", "Empty (no pack selected)", "", "Default", Permission.NONE, Permission.GENERAL);
 	
 	private HashMap<String, Resourcepack> packs;
-	private HashMap<Player, String> currentPacks;
+	private HashMap<UUID, String> currentPacks;
 	
 	public ResourcepackManager(DynamicResourcepacks plugin) {
 		this.plugin = plugin;
 		this.config = this.plugin.getConfig();
 		
-		this.currentPacks = new HashMap<Player, String>();
+		this.currentPacks = new HashMap<UUID, String>();
 		this.packs        = new HashMap<String, Resourcepack>();
 		EMPTY_PACK.setURL(this.config.getString("emptyPackURL"));
 		this.packs.put(EMPTY_PACK.getName(), EMPTY_PACK);
@@ -60,6 +60,8 @@ public class ResourcepackManager {
 		EMPTY_PACK.setURL(url);
 	}
 	
+	
+	
 	/**
 	 * Directly sends the given resourcepack to the player.
 	 * If either player or pack are null or the URL is empty, nothing happens.
@@ -71,6 +73,26 @@ public class ResourcepackManager {
 			player.setResourcePack(pack.getURL());
 			this.plugin.getLogger().info("Sending resourcepack " + pack.getName() + " (" + pack.getURL() + ") to player " +  player.getName());;
 		}
+	}
+	
+	/**
+	 * Directly sends the given resourcepack to the player.
+	 * If either player or pack are null or the URL is empty, nothing happens.
+	 * @param playerid The UUID of the player to send the pack to
+	 * @param pack The pack to send to the player
+	 */
+	protected void sendResourcepack(UUID playerid, Resourcepack pack) {
+		this.sendResourcepack(Bukkit.getPlayer(playerid),pack);
+	}
+	
+	/**
+	 * Directly sends the given resourcepack to the player.
+	 * If either player or pack are null or the URL is empty, nothing happens.
+	 * @param playerid The UUID of the player to send the pack to
+	 * @param name  The name of the pack to send to the player
+	 */
+	protected void sendResourcepack(UUID playerid, String name) {
+		this.sendResourcepack(Bukkit.getPlayer(playerid),name);
 	}
 
 	/**
@@ -89,8 +111,11 @@ public class ResourcepackManager {
 	 * Resends the currently selected resourcepack to every player.
 	 */
 	public void resendAll() {
-		for(Player player : this.currentPacks.keySet())
-			this.sendResourcepack(player, this.currentPacks.get(player));
+		for(UUID playerid : this.currentPacks.keySet()) {
+			Player player = Bukkit.getPlayer(playerid);
+			if(player != null && player.isOnline())
+				this.sendResourcepack(player, this.getPlayersPack(player));
+		}
 	}
 	
 	/**
@@ -99,7 +124,7 @@ public class ResourcepackManager {
 	 */
 	public void resendEmpty() {
 		for(Player player : this.plugin.getServer().getOnlinePlayers())
-			if(!this.currentPacks.containsKey(player))
+			if(!this.hasResourcepack(player.getUniqueId()))
 				this.sendResourcepack(player, EMPTY_PACK);
 	}
 	
@@ -108,10 +133,20 @@ public class ResourcepackManager {
 	 * @param player Player to resend the pack to
 	 */
 	public void resend(Player player) {
-		if(this.currentPacks.containsKey(player))
-			this.sendResourcepack(player, this.currentPacks.get(player));
+		if(this.hasResourcepack(player.getUniqueId()))
+			this.sendResourcepack(player, this.getPlayersPack(player));
 		else
 			this.sendResourcepack(player, EMPTY_PACK);
+	}
+	
+	/**
+	 * Resends the currently selected resourcepack to the given player, or if no resourcepack is selected, the empty pack.
+	 * @param playerid The UUID of the player
+	 */
+	public void resend(UUID playerid) {
+		Player player = Bukkit.getPlayer(playerid);
+		if(player != null && player.isOnline())
+			this.resend(player);
 	}
 	
 	/**
@@ -127,9 +162,9 @@ public class ResourcepackManager {
 	 * @param pack Name of the resourcepack to resend
 	 */
 	public void resend(String name) {
-		Iterator<Entry<Player, String>> i = this.currentPacks.entrySet().iterator();
+		Iterator<Entry<UUID, String>> i = this.currentPacks.entrySet().iterator();
 		while(i.hasNext()) {
-			Entry<Player, String> e = i.next();
+			Entry<UUID, String> e = i.next();
 			if(e.getValue().equalsIgnoreCase(name))
 				this.resend(e.getKey());
 		}
@@ -151,7 +186,7 @@ public class ResourcepackManager {
 		if(!this.packs.containsKey(pack.getName()))
 			this.addResourcepack(pack);
 		
-		this.currentPacks.put(player, pack.getName());
+		this.currentPacks.put(player.getUniqueId(), pack.getName());
 		this.sendResourcepack(player, pack);
 	}
 	
@@ -160,9 +195,17 @@ public class ResourcepackManager {
 	 * @param player The player
 	 */
 	public void clearResourcepack(Player player) {
-		if(this.currentPacks.containsKey(player)) {
-			this.currentPacks.remove(player);
-			this.sendResourcepack(player, EMPTY_PACK);
+		this.clearResourcepack(player.getUniqueId());		
+	}
+	
+	/**
+	 * Clears the resourcepack of the given player and sends the empty pack.
+	 * @param playerid The UUID of the player
+	 */
+	public void clearResourcepack(UUID playerid) {
+		if(this.hasResourcepack(playerid)) {
+			this.currentPacks.remove(playerid);
+			this.sendResourcepack(playerid, EMPTY_PACK);
 		}
 	}
 	
@@ -173,7 +216,7 @@ public class ResourcepackManager {
 	 * @return The selected resourcepack or null
 	 */
 	public Resourcepack getResourcepack(Player player) {
-		return this.getResourcepackForName(this.currentPacks.get(player));
+		return this.getResourcepackForName(this.getPlayersPack(player.getUniqueId()));
 	}
 	
 	/**
@@ -182,7 +225,34 @@ public class ResourcepackManager {
 	 * @return True if the player has a selected resourcepack
 	 */
 	public boolean hasResourcepack(Player player) {
-		return this.currentPacks.containsKey(player);
+		return this.hasResourcepack(player.getUniqueId());
+	}
+	
+	/**
+	 * Returns true if the player has a selected resourcepack, otherwise false.
+	 * @param playerid The UUID of the player to check
+	 * @return True if the player has a selected resourcepack
+	 */
+	public boolean hasResourcepack(UUID playerid) {
+		return this.currentPacks.containsKey(playerid);
+	}
+		
+	/**
+	 * Returns the packname the player has selected, returns null if it is none.
+	 * @param player The player
+	 * @return The packname, null if none
+	 */
+	public String getPlayersPack(Player player) {
+		return this.getPlayersPack(player.getUniqueId());
+	}
+	
+	/**
+	 * Returns the packname the player has selected, returns null if it is none.
+	 * @param playerid The UUID of the player
+	 * @return The packname, null if none
+	 */
+	public String getPlayersPack(UUID playerid) {
+		return this.currentPacks.get(playerid);
 	}
 	
 	/**
@@ -210,9 +280,9 @@ public class ResourcepackManager {
 	public void removeResourcepack(Resourcepack pack) {
 		this.packs.remove(pack.getName());
 		
-		Iterator<Entry<Player, String>> i = this.currentPacks.entrySet().iterator();
+		Iterator<Entry<UUID, String>> i = this.currentPacks.entrySet().iterator();
 		while(i.hasNext()) {
-			Entry<Player, String> e = i.next();
+			Entry<UUID, String> e = i.next();
 			if(e.getValue().equalsIgnoreCase(pack.getName()))
 				this.clearResourcepack(e.getKey());
 		}
@@ -230,9 +300,9 @@ public class ResourcepackManager {
 		pack.setName(newName);
 		this.packs.put(newName, pack);
 		
-		for(Player player : this.currentPacks.keySet())
-			if(this.currentPacks.get(player) == oldName)
-				this.currentPacks.put(player, newName);
+		for(UUID playerid : this.currentPacks.keySet())
+			if(this.getPlayersPack(playerid) == oldName)
+				this.currentPacks.put(playerid, newName);
 	}
 	
 	/**
@@ -304,10 +374,10 @@ public class ResourcepackManager {
 	}
 	
 	/**
-	 * Returns the HashMap of players and the names of the currently selected resourcepack.
+	 * Returns the HashMap of players UUIDs and the names of the currently selected resourcepack.
 	 * @return The HashMap
 	 */
-	public HashMap<Player, String> getCurrentResourcepacks() {
+	public HashMap<UUID, String> getCurrentResourcepacks() {
 		return this.currentPacks;
 	}
 	
@@ -315,8 +385,8 @@ public class ResourcepackManager {
 	 * Clears the resourcepack for all players that currently have a resourcepack selected.
 	 */
 	public void clearSelectedPacks() {
-		for(Player p : this.currentPacks.keySet())
-			this.clearResourcepack(p);
+		for(UUID playerid : this.currentPacks.keySet())
+			this.clearResourcepack(playerid);
 		
 	}
 	
@@ -354,18 +424,25 @@ public class ResourcepackManager {
 	public void saveConfigPlayers() {
 		ConfigurationSection oldSection = this.config.getConfigurationSection("players");
 		ConfigurationSection newSection = this.config.createSection("players");
-		for(Player player : this.currentPacks.keySet()) {
-			String pack = this.currentPacks.get(player);
-			ConfigurationSection p = newSection.getConfigurationSection(player.getUniqueId().toString());
-			if(p == null) p = newSection.createSection(player.getUniqueId().toString());
-			else if(pack == null) newSection.set(player.getUniqueId().toString(), null);
-			else {
+		for(UUID playerid : this.currentPacks.keySet()) {
+			Player player = Bukkit.getPlayer(playerid);
+			if(player == null) {
+				continue;
+			}
+			String pack = this.getPlayersPack(playerid);	
+			if(pack == null) { 
+				newSection.set(playerid.toString(), null);
+			} else {
+				ConfigurationSection p = newSection.getConfigurationSection(playerid.toString());	
+				if(p == null)
+					p = newSection.createSection(playerid.toString());			
+				
 				p.set("name", player.getName());
 				p.set("pack", pack);
 				p.set("locked", this.getLocked(player));
 			}
-			if(oldSection != null && oldSection.isConfigurationSection(player.getUniqueId().toString()))
-				oldSection.set(player.getUniqueId().toString(), null);
+			if(oldSection != null && oldSection.isConfigurationSection(playerid.toString()))
+				oldSection.set(playerid.toString(), null);
 		}
 		if(oldSection != null) {
 			for(String section : oldSection.getKeys(false)) {
@@ -380,13 +457,14 @@ public class ResourcepackManager {
 	 * (The config itself is not automatically saved to the disk!)
 	 */
 	public void saveConfigForPlayer(Player player) {
-		String pack = this.currentPacks.get(player);
+		String pack = this.getPlayersPack(player);
 		ConfigurationSection section = this.config.getConfigurationSection("players");
 		if(section == null) section = this.config.createSection("players");
-		ConfigurationSection p = section.getConfigurationSection(player.getUniqueId().toString());
-		if(p == null) p = section.createSection(player.getUniqueId().toString());
-		else if(pack == null) section.set(player.getUniqueId().toString(), null);
+		if(pack == null) 
+			section.set(player.getUniqueId().toString(), null);
 		else {
+			ConfigurationSection p = section.getConfigurationSection(player.getUniqueId().toString());
+			if(p == null) p = section.createSection(player.getUniqueId().toString());
 			p.set("name", player.getName());
 			p.set("pack", pack);
 			p.set("locked", this.getLocked(player));

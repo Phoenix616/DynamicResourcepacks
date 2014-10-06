@@ -5,7 +5,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.UUID;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -124,10 +126,10 @@ public abstract class DynamicResourcepacksCommand {
 			//It wouldn't work for the empty pack because it isn't included in the HashMap of current packs
 			
 			String users = "";
-			HashMap<Player, String> packs = this.packManager.getCurrentResourcepacks();
-			for(Entry<Player, String> e : packs.entrySet())
+			HashMap<UUID, String> packs = this.packManager.getCurrentResourcepacks();
+			for(Entry<UUID, String> e : packs.entrySet())
 				if(pack.getName().equals(e.getValue()))
-					users += e.getKey().getName() + ", ";
+					users += Bukkit.getPlayer(e.getKey()).getName() + ", ";
 			if(users.isEmpty())
 				users = ChatColor.ITALIC + "none";
 			else
