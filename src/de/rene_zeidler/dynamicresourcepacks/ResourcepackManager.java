@@ -178,16 +178,27 @@ public class ResourcepackManager {
 	 * @param pack Resourcepack to set
 	 */
 	public void setResourcepack(Player player, Resourcepack pack) {
+		setResourcepack(player.getUniqueId(), pack);
+	}
+	
+	/**
+	 * Sets the selected resourcepack and sends it to the player.
+	 * If the pack is null, the pack is cleared and the empty pack gets send.
+	 * If the given pack is not in the list of resourcepacks it will be automatically added.
+	 * @param playerid The player's UUID
+	 * @param pack Resourcepack to set
+	 */
+	public void setResourcepack(UUID playerid, Resourcepack pack) {
 		if(pack == null || pack == EMPTY_PACK) {
-			this.clearResourcepack(player);
+			this.clearResourcepack(playerid);
 			return;
 		}
 		
 		if(!this.packs.containsKey(pack.getName()))
 			this.addResourcepack(pack);
 		
-		this.currentPacks.put(player.getUniqueId(), pack.getName());
-		this.sendResourcepack(player, pack);
+		this.currentPacks.put(playerid, pack.getName());
+		this.sendResourcepack(playerid, pack);
 	}
 	
 	/**
@@ -472,6 +483,28 @@ public class ResourcepackManager {
 	}
 	
 	/**
+	 * Saves all the selected resourcepacks of the given player in the config.
+	 * (The config itself is not automatically saved to the disk!)
+	 * @param playerid The player's id
+	 * @param name The player's name
+	 * @param pack The name of the player's pack
+	 * @param locked If the pack for the player should be locked
+	 */
+	public void saveConfigForOfflinePlayer(UUID playerid, String name, String pack, boolean locked) {
+		ConfigurationSection section = this.config.getConfigurationSection("players");
+		if(section == null) section = this.config.createSection("players");
+		if(pack == null) 
+			section.set(playerid.toString(), null);
+		else {
+			ConfigurationSection p = section.getConfigurationSection(playerid.toString());
+			if(p == null) p = section.createSection(playerid.toString());
+			p.set("name", name);
+			p.set("pack", pack);
+			p.set("locked", locked);
+		}
+	}
+	
+	/**
 	 * Populates the resourcepack list and selected resourcepacks of players with
 	 * the values stored in the config. Any unsaved changes will be discarded, use
 	 * {@link #saveConfig()} to save them before.
@@ -543,6 +576,15 @@ public class ResourcepackManager {
 	}
 	
 	/**
+	 * Sets the locked status of the player to the given value
+	 * @param player The player
+	 * @param locked The status
+	 */
+	public void setLocked(UUID playerid, boolean locked) {
+		this.plugin.getConfig().set("players." + playerid + ".locked", locked);		
+	}
+	
+	/**
 	 * Returns the locked status of the given player
 	 * @param player The player
 	 * @return The status
@@ -563,4 +605,5 @@ public class ResourcepackManager {
 	public static boolean isValidURL(String url) {
 		return (url != null && !url.isEmpty() && (url.startsWith("http://") || url.startsWith("https://")));
 	}
+
 }

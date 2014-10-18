@@ -129,7 +129,7 @@ public abstract class DynamicResourcepacksCommand {
 			HashMap<UUID, String> packs = this.packManager.getCurrentResourcepacks();
 			for(Entry<UUID, String> e : packs.entrySet())
 				if(pack.getName().equals(e.getValue()))
-					users += Bukkit.getPlayer(e.getKey()).getName() + ", ";
+					users += this.plugin.getConfig().getString("players." + e.getKey() + ".name") + ", ";
 			if(users.isEmpty())
 				users = ChatColor.ITALIC + "none";
 			else

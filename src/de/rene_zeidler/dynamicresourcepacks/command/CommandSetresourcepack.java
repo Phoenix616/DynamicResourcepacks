@@ -98,6 +98,7 @@ public class CommandSetresourcepack extends DynamicResourcepacksCommand {
 		
 		Player player = null;
 		List<Player> players = null;
+		List<UUID> playerids = null;
 		Resourcepack pack;
 		int packArg;
 		
@@ -122,11 +123,11 @@ public class CommandSetresourcepack extends DynamicResourcepacksCommand {
 					return true;
 				}
 				
-				players = new ArrayList<Player>();
+				playerids = new ArrayList<UUID>();
 				HashMap<UUID, String> packs = this.packManager.getCurrentResourcepacks();
 				for(Entry<UUID, String> e : packs.entrySet())
 					if(p.getName().equals(e.getValue())) 
-						players.add(Bukkit.getPlayer(e.getKey()));
+						playerids.add(e.getKey());
 					
 				
 			} else {
@@ -183,6 +184,9 @@ public class CommandSetresourcepack extends DynamicResourcepacksCommand {
 		if(players != null)
 			for(Player p : players)
 				if(!this.setResourcepack(sender, p, pack, lock, respectLock)) break;
+		if(playerids != null)
+			for(UUID pid : playerids)
+				if(!this.setResourcepack(sender, pid, pack, lock, respectLock)) break;
 		
 		return true;
 	}
@@ -231,6 +235,91 @@ public class CommandSetresourcepack extends DynamicResourcepacksCommand {
 		}
 		
 		sender.sendMessage(msg.toString());
+	}
+	
+	/* 
+	 * returns false when the sender has insufficient permissions
+	 * returns true when succeeds or the player has insufficient permissions
+	 */
+	public boolean setResourcepack(CommandSender sender, UUID playerid, Resourcepack pack, boolean lock, boolean respectLock) {
+		if(playerid == null || pack == null) return false;
+
+		boolean useSelf = (sender instanceof Player) ? (((Player)sender).getUniqueId() == playerid) : false;
+
+		if(!useSelf && !sender.hasPermission("dynamicresourcepacks.setpack.others")) {
+			sender.sendMessage(ChatColor.RED + "You don't have permission to set the resourcepack of other players!");
+			return false;
+		}
+		
+		if(lock && !sender.hasPermission("dynamicresourcepacks.setpack.lock")) {
+			sender.sendMessage(ChatColor.RED + "You don't have permission to lock a resourcepack!");
+			return false;
+		}
+		
+		if(useSelf && !pack.checkUseSelfPermission(((Player)sender))) {
+			sender.sendMessage(ChatColor.RED + "You don't have permission to use this resourcepack!");
+			return true;
+		} else if(Bukkit.getPlayer(playerid) != null && Bukkit.getPlayer(playerid).isOnline() && !pack.checkGeneralPermission(Bukkit.getPlayer(playerid))) {
+			sender.sendMessage(ChatColor.RED  + "The player " +
+							   ChatColor.GOLD + Bukkit.getPlayer(playerid).getName() +
+							   ChatColor.RED  + " doesn't have permission to use the resourcepack " +
+							   ChatColor.GOLD + pack.getDisplayName() +
+							   ChatColor.RED  + "!");
+			return true;
+		}
+
+		Player player = Bukkit.getPlayer(playerid);
+		boolean playeronline = (player != null) ? true : false;
+		boolean locked = (playeronline) ? this.packManager.getLocked(player) : this.plugin.getConfig().getBoolean("players." + playerid + ".locked");
+		String playername = (playeronline) ? player.getName() : this.plugin.getConfig().getString("players." + playerid + ".name");
+		
+		if(playername == null)
+			playername = Bukkit.getOfflinePlayer(playerid).getName();
+		
+		if(locked) {
+			if(!respectLock && sender.hasPermission("dynamicresourcepacks.unlock")) {
+				if(!lock) {
+					this.packManager.setLocked(playerid, false);
+					if(useSelf) sender.sendMessage(ChatColor.GREEN      + "Your resourcepack has been unlocked");
+					else        sender.sendMessage(ChatColor.GREEN      + "The resourcepack of " +
+												   ChatColor.DARK_GREEN + playername +
+												   ChatColor.GREEN      + " has been unlocked");
+				}
+			} else {
+				if(useSelf) sender.sendMessage(ChatColor.RED  + "Your resourcepack is locked!");
+				else        sender.sendMessage(ChatColor.RED  + "The resourcepack of " +
+											   ChatColor.GOLD + playername +
+											   ChatColor.RED  + " is locked!");
+				return true;
+			}
+		} else if(lock) {
+			if(playeronline) 
+				this.packManager.setLocked(player, true);
+			else
+				this.packManager.setLocked(playerid, true);
+			if(useSelf) sender.sendMessage(ChatColor.GREEN      + "Your resourcepack has been locked");
+			else        sender.sendMessage(ChatColor.GREEN      + "The resourcepack of " +
+										   ChatColor.DARK_GREEN + playername +
+										   ChatColor.GREEN      + " has been locked");
+		}
+
+		this.packManager.setResourcepack(playerid, pack);
+
+		if(useSelf) sender.sendMessage(ChatColor.GREEN      + "You now use the resourcepack " +
+									   ChatColor.DARK_GREEN + pack.getDisplayName());
+		else        sender.sendMessage(ChatColor.GREEN      + "The resourcepack of " +
+									   ChatColor.DARK_GREEN + playername +
+									   ChatColor.GREEN      + " has been set to " +
+									   ChatColor.DARK_GREEN + pack.getDisplayName());
+
+		if(playeronline) 
+			this.packManager.saveConfigForPlayer(player);
+		else {
+			this.packManager.saveConfigForOfflinePlayer(playerid, playername, pack.getName(), lock);
+		}
+		this.plugin.saveConfig();
+		
+		return true;
 	}
 	
 	/* 
